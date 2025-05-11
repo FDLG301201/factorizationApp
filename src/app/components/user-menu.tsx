@@ -4,6 +4,7 @@ import { IconButton, Avatar, Menu, MenuItem } from "@mui/material";
 import { useRef, useState } from "react";
 import ThemeToggle from "../components/theme-toggle";
 import LanguageSwitcher from "../components/language-switcher";
+import { useSession } from "next-auth/react";
 
 export default function UserMenu() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -18,6 +19,15 @@ export default function UserMenu() {
     setAnchorEl(null);
   };
 
+  const { data: session } = useSession();
+
+  function getInitials(username: string) {
+    if (!username) return "";
+    const parts = username.split(" ");
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
   return (
     <div>
       <IconButton
@@ -28,7 +38,9 @@ export default function UserMenu() {
         aria-expanded={open ? "true" : undefined}
         color="inherit"
       >
-        <Avatar>A</Avatar>
+        <Avatar>
+          {session?.user ? getInitials((session.user as any).username) : "?"}
+        </Avatar>
       </IconButton>
       <Menu
         id="user-menu"

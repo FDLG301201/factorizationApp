@@ -27,6 +27,8 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 
 import CustomAppBar from "../components/CustomAppBar";
 import { routing } from "@/i18n/routing";
+import { SessionProvider } from "next-auth/react";
+import SessionWrapper from "../components/session-wrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 const drawerWidth = 240;
@@ -36,11 +38,11 @@ export default async function LocaleLayout({
   params
 }: {
   children: React.ReactNode;
-  params: Promise<{locale: string}>;
+  params: Promise<{ locale: string }>;
 }) {
 
   // Ensure that the incoming `locale` is valid
-  const {locale} = await params;
+  const { locale } = await params;
 
   if (!hasLocale(routing.locales, locale)) {
     notFound();
@@ -58,51 +60,53 @@ export default async function LocaleLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <CssBaseline />
-            <Box sx={{ display: "flex" }}>
-              <CustomAppBar />
-              <Drawer
-                variant="permanent"
-                sx={{
-                  width: drawerWidth,
-                  flexShrink: 0,
-                  [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" },
-                }}
-              >
-                <Toolbar />
-                <Box sx={{ overflow: "auto" }}>
-                  <List>
-                    <ListItem disablePadding>
-                      <ListItemButton component={Link} href={`/${locale}`}>
-                        <ListItemIcon><DashboardIcon /></ListItemIcon>
-                        <ListItemText primary="Dashboard" />
-                      </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding>
-                      <ListItemButton component={Link} href={`/${locale}/customers`}>
-                        <ListItemIcon><PeopleIcon /></ListItemIcon>
-                        <ListItemText primary="Customers" />
-                      </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding>
-                      <ListItemButton component={Link} href={`/${locale}/invoices`}>
-                        <ListItemIcon><ReceiptIcon /></ListItemIcon>
-                        <ListItemText primary="Invoices" />
-                      </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding>
-                      <ListItemButton component={Link} href={`/${locale}/inventory`}>
-                        <ListItemIcon><InventoryIcon /></ListItemIcon>
-                        <ListItemText primary="Inventory" />
-                      </ListItemButton>
-                    </ListItem>
-                  </List>
+            <SessionWrapper>
+              <CssBaseline />
+              <Box sx={{ display: "flex" }}>
+                <CustomAppBar />
+                <Drawer
+                  variant="permanent"
+                  sx={{
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" },
+                  }}
+                >
+                  <Toolbar />
+                  <Box sx={{ overflow: "auto" }}>
+                    <List>
+                      <ListItem disablePadding>
+                        <ListItemButton component={Link} href={`/${locale}`}>
+                          <ListItemIcon><DashboardIcon /></ListItemIcon>
+                          <ListItemText primary="Dashboard" />
+                        </ListItemButton>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemButton component={Link} href={`/${locale}/customers`}>
+                          <ListItemIcon><PeopleIcon /></ListItemIcon>
+                          <ListItemText primary="Customers" />
+                        </ListItemButton>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemButton component={Link} href={`/${locale}/invoices`}>
+                          <ListItemIcon><ReceiptIcon /></ListItemIcon>
+                          <ListItemText primary="Invoices" />
+                        </ListItemButton>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <ListItemButton component={Link} href={`/${locale}/inventory`}>
+                          <ListItemIcon><InventoryIcon /></ListItemIcon>
+                          <ListItemText primary="Inventory" />
+                        </ListItemButton>
+                      </ListItem>
+                    </List>
+                  </Box>
+                </Drawer>
+                <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
+                  {children}
                 </Box>
-              </Drawer>
-              <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
-                {children}
               </Box>
-            </Box>
+            </SessionWrapper>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
