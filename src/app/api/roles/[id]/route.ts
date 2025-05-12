@@ -1,13 +1,15 @@
 import { prisma } from '../../../../../lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
-    _req: Request,
-    { params }: { params: { id: string } }
+    _req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const id = (await params).id;
+
     try {
         const role = await prisma.roles.findUnique({
-            where: { id: parseInt(params.id) }
+            where: { id: parseInt(id) }
         });
 
         if (!role) {
@@ -21,13 +23,15 @@ export async function GET(
 }
 
 export async function PUT(
-    req: Request,
-    { params }: { params: { id: string } }
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const id = (await params).id;
+
     try {
         const data = await req.json();
         const updated = await prisma.roles.update({
-            where: { id: parseInt(params.id) },
+            where: { id: parseInt(id) },
             data
         });
 
@@ -38,12 +42,14 @@ export async function PUT(
 }
 
 export async function DELETE(
-    _req: Request,
-    { params }: { params: { id: string } }
+    _req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const id = (await params).id;
+
     try {
         await prisma.roles.delete({
-            where: { id: parseInt(params.id) }
+            where: { id: parseInt(id) }
         });
 
         return NextResponse.json({ message: 'Role deleted' });

@@ -1,14 +1,17 @@
 import { prisma } from '../../../../../lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Obtener dirección por ID
+// GET: Obtener dirección por ID
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+
+  const id = (await params).id;
+
   try {
     const address = await prisma.addresses.findUnique({
-      where: { id: parseInt(params.id) }
+      where: { id: parseInt(id) }
     });
 
     if (!address) {
@@ -21,15 +24,18 @@ export async function GET(
   }
 }
 
-// Actualizar dirección
+// PUT: Actualizar dirección
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+
+  const id = (await params).id;
+
   try {
-    const data = await req.json();
+    const data = await _req.json();
     const updated = await prisma.addresses.update({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt(id) },
       data
     });
 
@@ -39,14 +45,16 @@ export async function PUT(
   }
 }
 
-// Eliminar dirección
+// DELETE: Eliminar dirección
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const id = (await params).id;
+
   try {
     await prisma.addresses.delete({
-      where: { id: parseInt(params.id) }
+      where: { id: parseInt(id) }
     });
 
     return NextResponse.json({ message: 'Address deleted' });

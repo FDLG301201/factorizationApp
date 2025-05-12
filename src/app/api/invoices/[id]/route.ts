@@ -1,14 +1,16 @@
 import { prisma } from '../../../../../lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Obtener una factura por ID
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const id = (await params).id;
+
   try {
     const invoice = await prisma.invoices.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt(id) },
       include: { customers: true },
     });
 
@@ -24,14 +26,16 @@ export async function GET(
 
 // Actualizar una factura
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const id = (await params).id;
+
   try {
     const data = await req.json();
 
     const updated = await prisma.invoices.update({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt(id) },
       data,
     });
 
@@ -43,12 +47,14 @@ export async function PUT(
 
 // Eliminar una factura
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const id = (await params).id;
+
   try {
     await prisma.invoices.delete({
-      where: { id: parseInt(params.id) },
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json({ message: 'Invoice deleted' });
