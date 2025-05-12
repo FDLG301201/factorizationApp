@@ -31,8 +31,6 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true);
     setError(null);
-    // console.log("Iniciando sesión con:", { email, password })
-    // Aquí iría la lógica de autenticación
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -43,10 +41,8 @@ export default function LoginPage() {
     setLoading(false);
   
     if (result?.error) {
-      // Muestra un mensaje de error al usuario
       setError("Usuario o contraseña incorrecto");
     } else if (result?.ok) {
-      // Redirige al usuario a la página principal o dashboard
       router.push(`/dashboard`);
     }
   }
@@ -60,9 +56,9 @@ export default function LoginPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setIsEnglish(prev => !prev);
-    }, 7000); // Cambia cada 3 segundos
+    }, 7000);
 
-    return () => clearInterval(interval); // Limpia el temporizador al desmontar el componente
+    return () => clearInterval(interval);
   }, []);
 
   return (
