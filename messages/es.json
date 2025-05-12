@@ -76,7 +76,10 @@
     "status": "Estado",
     "street-address": "Dirección",
     "zip-code": "Código Postal",
-    "zip-postal-code": "Código Postal"
+    "zip-postal-code": "Código Postal",
+    "color": "Color",
+    "language": "Idioma",
+    "logout": "Cerrar Sesión"
   },
   "Status": {
     "paid": "Pagado",

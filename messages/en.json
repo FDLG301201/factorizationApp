@@ -76,7 +76,10 @@
     "status": "Status",
     "street-address": "Street Address",
     "zip-code": "Zip Code",
-    "zip-postal-code": "Zip/Postal Code"
+    "zip-postal-code": "Zip/Postal Code",
+    "color": "Color",
+    "language": "Language",
+    "logout": "Logout"
   },
   "Status": {
     "paid": "Paid",

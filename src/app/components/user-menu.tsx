@@ -1,10 +1,14 @@
 "use client";
 
-import { IconButton, Avatar, Menu, MenuItem } from "@mui/material";
+import { IconButton, Avatar, Menu, MenuItem, Button } from "@mui/material";
 import { useRef, useState } from "react";
 import ThemeToggle from "../components/theme-toggle";
 import LanguageSwitcher from "../components/language-switcher";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useTranslations } from "next-intl";
+import router from "next/router";
+import { redirect } from "next/navigation";
 
 export default function UserMenu() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -27,6 +31,12 @@ export default function UserMenu() {
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/login" });
+  };
+
+  const g = useTranslations("General");
 
   return (
     <div>
@@ -82,10 +92,13 @@ export default function UserMenu() {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          Color <ThemeToggle />
+          {g("color")} <ThemeToggle />
         </MenuItem>
         <MenuItem sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          Language <LanguageSwitcher />
+          {g("language")} <LanguageSwitcher />
+        </MenuItem>
+        <MenuItem sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={handleLogout}>
+            <LogoutIcon sx={{ mr: 1 }} /> {g("logout")}
         </MenuItem>
       </Menu>
     </div>

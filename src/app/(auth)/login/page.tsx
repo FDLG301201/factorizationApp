@@ -47,7 +47,7 @@ export default function LoginPage() {
       setError("Usuario o contraseña incorrecto");
     } else if (result?.ok) {
       // Redirige al usuario a la página principal o dashboard
-      window.location.href = `/${locale}`;
+      router.push(`/dashboard`);
     }
   }
 
