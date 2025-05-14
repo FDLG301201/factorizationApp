@@ -17,6 +17,7 @@ model addresses {
   zip_code  String?
   country   String?
   companies companies[]
+  customers customers[]
   providers providers[]
 }
 
@@ -44,6 +45,8 @@ model customers {
   phone      String?
   notes      String?
   company_id Int?
+  address_id Int?
+  addresses  addresses? @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   companies  companies? @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   invoices   invoices[]
 }

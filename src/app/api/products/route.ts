@@ -4,7 +4,12 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   debugger
-  const products = await prisma.products.findMany();
+  const products = await prisma.products.findMany({
+    include: {
+      providers: true,
+      categories: true,
+    }
+  });
   return NextResponse.json(products);
 }
 

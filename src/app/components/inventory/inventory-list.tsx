@@ -97,7 +97,7 @@ export default function InventoryList({
   const filteredInventories = inventories.filter(
     (inventory) =>
       inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inventory.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inventory.categories?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inventory.price.toString().includes(searchTerm),
   )
 
@@ -152,10 +152,10 @@ export default function InventoryList({
             {filteredInventories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((inventory) => (
               <TableRow key={inventory.id}>
                 <TableCell>{inventory.name}</TableCell>
-                <TableCell>{inventory.category || "—"}</TableCell>
+                <TableCell>{inventory.categories?.name || "—"}</TableCell>
                 <TableCell>{inventory.price}</TableCell>
                 <TableCell>{inventory.quantity}</TableCell>
-                <TableCell>{inventory.provider || "—"}</TableCell>
+                <TableCell>{inventory.providers?.name || "—"}</TableCell>
                 <TableCell align="right">
                   <IconButton size="small" onClick={() => handleEditClick(inventory)}>
                     <EditIcon fontSize="small" />

@@ -149,7 +149,8 @@ exports.Prisma.CustomersScalarFieldEnum = {
   email: 'email',
   phone: 'phone',
   notes: 'notes',
-  company_id: 'company_id'
+  company_id: 'company_id',
+  address_id: 'address_id'
 };
 
 exports.Prisma.InvoicesScalarFieldEnum = {

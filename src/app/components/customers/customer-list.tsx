@@ -157,11 +157,11 @@ export default function CustomerList({
                 <TableRow key={customer.id}>
                   <TableCell>{customer.identifier || "—"}</TableCell>
                   <TableCell>{customer.name}</TableCell>
-                  <TableCell>{customer.company || "—"}</TableCell>
+                  <TableCell>{customer.companies?.name || "—"}</TableCell>
                   <TableCell>{customer.email}</TableCell>
                   <TableCell>{customer.phone}</TableCell>
                   <TableCell>
-                    {customer.address.city}, {customer.address.state}
+                    {customer.addresses?.city}, {customer.addresses?.street}, {customer.addresses?.country}
                   </TableCell>
                   <TableCell align="right">
                     <IconButton size="small" onClick={() => handleEditClick(customer)}>

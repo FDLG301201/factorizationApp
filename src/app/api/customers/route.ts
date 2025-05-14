@@ -4,7 +4,12 @@ import { prisma } from '../../../../lib/prisma';
 
 
 export async function GET() {
-  const customers = await prisma.customers.findMany();
+  const customers = await prisma.customers.findMany({
+    include: {
+      companies: true,
+      addresses: true,
+    }
+  });
   return NextResponse.json(customers);
 }
 

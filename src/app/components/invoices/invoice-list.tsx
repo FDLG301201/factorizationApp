@@ -14,7 +14,7 @@ import {
 } from "@mui/material"
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material"
 import { Invoice } from "@/app/types/invoice"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 interface InvoiceListProps {
   invoices: Invoice[]
@@ -24,7 +24,7 @@ interface InvoiceListProps {
 }
 
 export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick }: InvoiceListProps) {
-  
+  const locale = useLocale();
   const t = useTranslations("Invoices");
   const g = useTranslations("General");
   const s = useTranslations("Status");
@@ -47,6 +47,27 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
       style: "currency",
       currency: "USD",
     }).format(amount)
+  }
+
+  function formatDate(dateStr: string) {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+  
+    if (locale === "es") {
+      // Español: dd/mm/yyyy
+      return date.toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } else {
+      // Inglés u otro: mm/dd/yyyy
+      return date.toLocaleDateString("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric",
+      });
+    }
   }
 
   return (
@@ -75,9 +96,9 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
           {invoices.map((invoice) => (
             <TableRow key={invoice.id}>
               <TableCell>INV-{invoice.id}</TableCell>
-              <TableCell>{invoice.customer}</TableCell>
-              <TableCell>{invoice.date}</TableCell>
-              <TableCell>{invoice.dueDate}</TableCell>
+              <TableCell>{invoice.customers.identifier}</TableCell>
+              <TableCell>{formatDate(invoice.date)}</TableCell>
+              <TableCell>{formatDate(invoice.due_date)}</TableCell>
               <TableCell align="right">{formatCurrency(invoice.amount)}</TableCell>
               <TableCell align="center">
                 <Chip
