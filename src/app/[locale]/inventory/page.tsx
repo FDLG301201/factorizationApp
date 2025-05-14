@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Box, Container, Paper, Typography, Button } from "@mui/material"
+import { Box, Container, Paper, Typography, Button, Divider } from "@mui/material"
 import { Add as AddIcon } from "@mui/icons-material"
 import { Provider } from "@/app/types/provider"
 import { Inventory } from "@/app/types/inventory"
@@ -75,6 +75,9 @@ const sampleInventory: Inventory[] = [
 
 
 export default function InventoryPage() {
+  
+  const t = useTranslations("Inventory");
+  const g = useTranslations("General");
   const [inventory, setInventory] = useState<Inventory[]>(sampleInventory)
   const [showInventoryForm, setShowInventoryForm] = useState(false)
   const [editingInventory, setEditingInventory] = useState<Inventory | null>(null)
@@ -117,19 +120,18 @@ export default function InventoryPage() {
     setShowInventoryForm(true)
   }
 
-  const t = useTranslations("Inventory");
-  const g = useTranslations("General");
-
   return (
     <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           {g("inventory")}
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
+        {/* <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
           {t("create-product")}
-        </Button>
+        </Button> */}
       </Box>
+
+      <Divider sx={{ color: "primary.main", width: "100%", mb: 3 }} />
 
       <Paper sx={{ p: 2 }}>
         <InventoryList

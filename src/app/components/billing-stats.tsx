@@ -15,6 +15,9 @@ interface BillingStatsProps {
 }
 
 export default function BillingStats({ invoices }: BillingStatsProps) {
+  
+  const t = useTranslations("HomePage");
+  const g = useTranslations("General");
   const theme = useMuiTheme()
   const isDarkMode = theme.palette.mode === "dark"
 
@@ -30,9 +33,6 @@ export default function BillingStats({ invoices }: BillingStatsProps) {
       currency: "USD",
     }).format(amount)
   }
-
-  const t = useTranslations("HomePage");
-  const g = useTranslations("General");
 
   const stats = [
     {

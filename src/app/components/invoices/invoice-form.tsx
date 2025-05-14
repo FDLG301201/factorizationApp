@@ -30,6 +30,11 @@ interface InvoiceFormProps {
 }
 
 export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: InvoiceFormProps) {
+
+  const t = useTranslations("Invoices");
+  const g = useTranslations("General");
+  const s = useTranslations("Status");
+  
   const [formData, setFormData] = useState({
     customer: "",
     amount: "",
@@ -76,9 +81,6 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
     })
   }
 
-  const t = useTranslations("Invoices");
-  const g = useTranslations("General");
-
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -94,7 +96,7 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
                 value={formData.customer}
                 onChange={handleCustomerChange}
                 renderInput={(params) => (
-                  <TextField {...params} required name="customer" label={g("custumer")} fullWidth variant="outlined" />
+                  <TextField {...params} required name="customer" label={g("customer")} fullWidth variant="outlined" />
                 )}
               />
             </Grid>
@@ -116,7 +118,7 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
             </Grid>
             <Grid size={{xs:12, sm:6}}>
               <FormControl fullWidth>
-                <InputLabel id="status-label">Status</InputLabel>
+                <InputLabel id="status-label">{g("status")}</InputLabel>
                 <Select
                   labelId="status-label"
                   id="status"
@@ -125,9 +127,9 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
                   label={g("status")}
                   onChange={handleChange}
                 >
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="paid">Paid</MenuItem>
-                  <MenuItem value="overdue">Overdue</MenuItem>
+                  <MenuItem value="pending">{s("pending")}</MenuItem>
+                  <MenuItem value="paid">{s("paid")}</MenuItem>
+                  <MenuItem value="overdue">{s("overdue")}</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

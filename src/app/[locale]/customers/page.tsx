@@ -119,6 +119,8 @@ const sampleInvoices: Invoice[] = [
 ]
 
 export default function CustomersPage() {
+  const t = useTranslations("Customers");
+  const g = useTranslations("General");
   const [customers, setCustomers] = useState<Customer[]>(sampleCustomers)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [activeTab, setActiveTab] = useState(0)
@@ -170,9 +172,6 @@ export default function CustomersPage() {
     setSelectedCustomer(customer)
     setActiveTab(1)
   }
-
-  const t = useTranslations("Custumers");
-  const g = useTranslations("General");
 
   return (
     <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>

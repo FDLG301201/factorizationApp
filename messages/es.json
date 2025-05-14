@@ -1,9 +1,10 @@
 {
-  "Custumers": {
+  "Customers": {
     "add-customer": "Agregar Cliente",
     "add-new-customer": "Agregar Nuevo Cliente",
     "all-customer": "Todos los Clientes",
-    "search-custumers": "Buscar clientes...",
+    "edit-customer": "Editar Cliente",
+    "search-customers": "Buscar clientes...",
     "update-customer": "Actualizar Cliente"
   },
   "HomePage": {
@@ -48,10 +49,12 @@
     "cancel": "Cancelar",
     "category": "Categoría",
     "city": "Ciudad",
+    "color": "Color",
     "company": "Empresa",
     "country": "País",
-    "custumer": "Cliente",
-    "custumers": "Clientes",
+    "customer": "Cliente",
+    "customers": "Clientes",
+    "dashboard": "Panel de Control",
     "date": "Fecha",
     "delete": "Eliminar",
     "due-date": "Fecha de Vencimiento",
@@ -61,7 +64,10 @@
     "full-name": "Nombre Completo",
     "identifier": "Identificador",
     "inventory": "Inventario",
+    "invoices": "Facturas",
+    "language": "Idioma",
     "location": "Ubicación",
+    "logout": "Cerrar Sesión",
     "name": "Nombre",
     "notes": "Notas",
     "optional-information": "Información Opcional",
@@ -76,15 +82,12 @@
     "status": "Estado",
     "street-address": "Dirección",
     "zip-code": "Código Postal",
-    "zip-postal-code": "Código Postal",
-    "color": "Color",
-    "language": "Idioma",
-    "logout": "Cerrar Sesión"
+    "zip-postal-code": "Código Postal"
   },
   "Status": {
-    "paid": "Pagado",
-    "pending": "Pendiente",
+    "default": "Desconocido",
     "overdue": "Vencido",
-    "default": "Desconocido"
+    "paid": "Pagado",
+    "pending": "Pendiente"
   }
 }

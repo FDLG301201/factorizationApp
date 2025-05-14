@@ -64,6 +64,8 @@ const sampleCustomers: Customer[] = [
 
 export default function Dashboard() {
     
+    const t = useTranslations("HomePage");
+    const g = useTranslations("General");
     const theme = useTheme()
     const [showInvoiceForm, setShowInvoiceForm] = useState(false)
     const [invoices, setInvoices] = useState<Invoice[]>([
@@ -101,9 +103,6 @@ export default function Dashboard() {
         setInvoices([...invoices, newInvoice])
         setShowInvoiceForm(false)
     }
-
-    const t = useTranslations("HomePage");
-    const g = useTranslations("General");
 
     return (
         <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>

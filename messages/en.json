@@ -1,9 +1,10 @@
 {
-  "Custumers": {
+  "Customers": {
     "add-customer": "Add Customer",
     "add-new-customer": "Add New Customer",
     "all-customer": "All Customers",
-    "search-custumers": "Search customers...",
+    "edit-customer": "Edit Customer",
+    "search-customers": "Search customers...",
     "update-customer": "Update Customer"
   },
   "HomePage": {
@@ -21,21 +22,21 @@
     "add-new-product": "Add New Product",
     "add-product": "Add Product",
     "create-product": "Create Product",
-    "product-name": "Product Name",
-    "inventory-manager": "Inventory Manager",
-    "search-inventory": "Search inventory...",
-    "no-product-found": "No product found",
     "edit-product": "Edit Product",
-    "product-description": "Product description"
+    "inventory-manager": "Inventory Manager",
+    "no-product-found": "No product found",
+    "product-description": "Product description",
+    "product-name": "Product Name",
+    "search-inventory": "Search inventory..."
   },
   "Invoices": {
     "create-invoice": "Create Invoice",
     "create-new-invoice": "Create New Invoice",
+    "edit-invoice": "Edit Invoice",
     "invoice-date": "Invoice Date",
+    "invoice-number": "Invoice #",
     "invoices": "Invoices",
     "recent-invoices": "Recent Invoices",
-    "invoice-number": "Invoice #",
-    "edit-invoice": "Edit Invoice",
     "update-invoice": "Update Invoice"
   },
   "General": {
@@ -48,10 +49,12 @@
     "cancel": "Cancel",
     "category": "Category",
     "city": "City",
+    "color": "Color",
     "company": "Company",
     "country": "Country",
-    "custumer": "Customer",
-    "custumers": "Customers",
+    "customer": "Customer",
+    "customers": "Customers",
+    "dashboard": "Dashboard",
     "date": "Date",
     "delete": "Delete",
     "due-date": "Due Date",
@@ -59,9 +62,12 @@
     "email": "Email",
     "filter": "Filter",
     "full-name": "Full Name",
-    "inventory": "Inventory",
     "identifier": "Identifier",
+    "inventory": "Inventory",
+    "invoices": "Invoices",
+    "language": "Language",
     "location": "Location",
+    "logout": "Logout",
     "name": "Name",
     "notes": "Notes",
     "optional-information": "Optional Information",
@@ -76,15 +82,12 @@
     "status": "Status",
     "street-address": "Street Address",
     "zip-code": "Zip Code",
-    "zip-postal-code": "Zip/Postal Code",
-    "color": "Color",
-    "language": "Language",
-    "logout": "Logout"
+    "zip-postal-code": "Zip/Postal Code"
   },
   "Status": {
-    "paid": "Paid",
-    "pending": "Pending",
+    "default": "Unknown",
     "overdue": "Overdue",
-    "default": "Unknown"
+    "paid": "Paid",
+    "pending": "Pending"
   }
 }

@@ -46,6 +46,10 @@ export default function CustomerList({
   onEditCustomer,
   onDeleteCustomer,
 }: CustomerListProps) {
+
+  const t = useTranslations("Customers");
+  const g = useTranslations("General");
+  
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
@@ -99,16 +103,12 @@ export default function CustomerList({
       customer.phone.includes(searchTerm),
   );
 
-  const t = useTranslations("Custumers");
-  const g = useTranslations("General");
-
-
   return (
     <Card>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Typography variant="h5" component="h2">
-            {g("custumers")}
+            {g("customers")}
           </Typography>
           <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
             {t("add-customer")}
@@ -119,7 +119,7 @@ export default function CustomerList({
           <TextField
             fullWidth
             variant="outlined"
-            placeholder={t("search-custumers")}
+            placeholder={t("search-customers")}
             value={searchTerm}
             onChange={handleSearch}
             InputProps={{

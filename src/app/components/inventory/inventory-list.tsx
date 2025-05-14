@@ -45,6 +45,10 @@ export default function InventoryList({
   onEditInventory,
   onDeleteInventory,
 }: InventoryListProps) {
+
+  const t = useTranslations("Inventory");
+  const g = useTranslations("General");
+  
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [searchTerm, setSearchTerm] = useState("")
@@ -96,8 +100,6 @@ export default function InventoryList({
       inventory.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inventory.price.toString().includes(searchTerm),
   )
-  const t = useTranslations("Inventory");
-  const g = useTranslations("General");
 
   return (
     <>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Box, Container, Paper, Typography, Button } from "@mui/material"
+import { Box, Container, Paper, Typography, Button, Divider } from "@mui/material"
 import { Add as AddIcon } from "@mui/icons-material"
 import InvoiceForm from "@/app/components/invoices/invoice-form"
 import InvoiceList from "@/app/components/invoices/invoice-list"
@@ -97,6 +97,9 @@ const sampleInvoices: Invoice[] = [
 ]
 
 export default function InvoicesPage() {
+  
+  const t = useTranslations("Invoices");
+  const g = useTranslations("General");
   const [invoices, setInvoices] = useState<Invoice[]>(sampleInvoices)
   const [showInvoiceForm, setShowInvoiceForm] = useState(false)
   const [editingInvoice, setEditingInvoice] = useState<Invoice | undefined>(undefined)
@@ -139,19 +142,18 @@ export default function InvoicesPage() {
     setShowInvoiceForm(true)
   }
 
-  const t = useTranslations("Invoices");
-  const g = useTranslations("General");
-
   return (
     <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           {t("invoices")}
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
+        {/* <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddClick}>
           {t("create-invoice")}
-        </Button>
+        </Button> */}
       </Box>
+
+      <Divider sx={{ color: "primary.main", width: "100%", mb: 3 }} />
 
       <Paper sx={{ p: 2 }}>
         <InvoiceList

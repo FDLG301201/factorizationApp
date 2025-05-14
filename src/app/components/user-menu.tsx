@@ -11,6 +11,8 @@ import router from "next/router";
 import { redirect } from "next/navigation";
 
 export default function UserMenu() {
+  
+  const g = useTranslations("General");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const avatarRef = useRef<HTMLButtonElement | null>(null);
@@ -35,8 +37,6 @@ export default function UserMenu() {
   const handleLogout = () => {
     signOut({ callbackUrl: "/login" });
   };
-
-  const g = useTranslations("General");
 
   return (
     <div>

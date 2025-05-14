@@ -9,15 +9,16 @@ interface RecentPaymentsProps {
 }
 
 export default function RecentPayments({ invoices }: RecentPaymentsProps) {
+
+  const t = useTranslations("HomePage");
+  const g = useTranslations("General");
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
     }).format(amount)
   }
-
-  const t = useTranslations("HomePage");
-  const g = useTranslations("General");
 
   return (
     <>

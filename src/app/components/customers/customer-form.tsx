@@ -25,6 +25,10 @@ interface CustomerFormProps {
 }
 
 export default function CustomerForm({ customer, onSubmit, onCancel }: CustomerFormProps) {
+
+  const t = useTranslations("Customers");
+  const g = useTranslations("General");
+
   const [formData, setFormData] = useState({
     identifier: "",
     name: "",
@@ -102,10 +106,6 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
     onSubmit(formData)
   }
-
-  const t = useTranslations("Custumers");
-  const g = useTranslations("General");
-
 
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="lg" fullWidth>

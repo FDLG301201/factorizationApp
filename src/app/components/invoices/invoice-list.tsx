@@ -24,6 +24,11 @@ interface InvoiceListProps {
 }
 
 export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick }: InvoiceListProps) {
+  
+  const t = useTranslations("Invoices");
+  const g = useTranslations("General");
+  const s = useTranslations("Status");
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "paid":
@@ -44,10 +49,6 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
     }).format(amount)
   }
 
-  const t = useTranslations("Invoices");
-  const g = useTranslations("General");
-  const s = useTranslations("Status");
-
   return (
     <>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
@@ -62,7 +63,7 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
         <TableHead>
           <TableRow>
             <TableCell>{t("invoice-number")}</TableCell>
-            <TableCell>{g("custumer")}</TableCell>
+            <TableCell>{g("customer")}</TableCell>
             <TableCell>{g("date")}</TableCell>
             <TableCell>{g("due-date")}</TableCell>
             <TableCell align="right">{g("amount")}</TableCell>

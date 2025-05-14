@@ -11,6 +11,8 @@ export default function LanguageSwitcher() {
   const pathname = usePathname();
   const currentLocale = useLocale();
   const [mounted, setMounted] = useState(false);
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
 
   useEffect(() => {
     setMounted(true);
@@ -33,10 +35,6 @@ export default function LanguageSwitcher() {
   if (!mounted) {
     return null;
   }
-
-  //Para obtener el tema de color actual
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === "dark";
 
   return (
     <Select

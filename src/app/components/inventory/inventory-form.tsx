@@ -28,6 +28,9 @@ interface InventoryFormProps {
 }
 
 export default function InventoryForm({ inventory, onSubmit, onCancel, providers }: InventoryFormProps) {
+
+  const t = useTranslations("Inventory");
+  const g = useTranslations("General");
   const [formData, setFormData] = useState<Inventory>({
     id: "",
     name: "",
@@ -88,9 +91,6 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
     onSubmit(formData)
   }
-
-  const t = useTranslations("Inventory");
-  const g = useTranslations("General");
 
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="lg" fullWidth>
@@ -182,9 +182,9 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onCancel}>Cancel</Button>
+          <Button onClick={onCancel}>{g("cancel")}</Button>
           <Button type="submit" variant="contained" color="primary">
-            {inventory ? "Update Product" : "Add Product"}
+            {inventory ? t("update-product") : t("add-product")}
           </Button>
         </DialogActions>
       </form>
