@@ -9,6 +9,7 @@ import {
 } from "@mui/icons-material"
 import { Invoice } from "../types/invoice"
 import { useTranslations } from "next-intl"
+import { useEffect } from "react"
 
 interface BillingStatsProps {
   invoices: Invoice[]
@@ -21,11 +22,11 @@ export default function BillingStats({ invoices }: BillingStatsProps) {
   const theme = useMuiTheme()
   const isDarkMode = theme.palette.mode === "dark"
 
-  const totalPaid = invoices.filter((inv) => inv.status === "paid").reduce((sum, inv) => sum + inv.amount, 0)
+  const totalPaid = invoices.filter((inv) => inv.status?.toLowerCase() === "paid").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
 
-  const totalPending = invoices.filter((inv) => inv.status === "pending").reduce((sum, inv) => sum + inv.amount, 0)
+  const totalPending = invoices.filter((inv) => inv.status?.toLowerCase() === "pending").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
 
-  const totalOverdue = invoices.filter((inv) => inv.status === "overdue").reduce((sum, inv) => sum + inv.amount, 0)
+  const totalOverdue = invoices.filter((inv) => inv.status?.toLowerCase() === "overdue").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {

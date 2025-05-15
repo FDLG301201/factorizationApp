@@ -7,7 +7,6 @@ export async function GET() {
   const customers = await prisma.customers.findMany({
     include: {
       companies: true,
-      addresses: true,
     }
   });
   return NextResponse.json(customers);

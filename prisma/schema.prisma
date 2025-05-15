@@ -10,15 +10,12 @@ datasource db {
 }
 
 model addresses {
-  id        Int         @id @default(autoincrement())
-  street    String?
-  city      String?
-  state     String?
-  zip_code  String?
-  country   String?
-  companies companies[]
-  customers customers[]
-  providers providers[]
+  id       Int     @id @default(autoincrement())
+  street   String?
+  city     String?
+  state    String?
+  zip_code String?
+  country  String?
 }
 
 model categories {
@@ -28,13 +25,16 @@ model categories {
 }
 
 model companies {
-  id         Int         @id @default(autoincrement())
-  name       String?     @unique
-  phone      String?
-  email      String?
-  address_id Int?
-  addresses  addresses?  @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  customers  customers[]
+  id        Int         @id @default(autoincrement())
+  name      String?     @unique
+  phone     String?
+  email     String?
+  street    String?
+  city      String?
+  state     String?
+  zip_code  String?
+  country   String?
+  customers customers[]
 }
 
 model customers {
@@ -45,8 +45,11 @@ model customers {
   phone      String?
   notes      String?
   company_id Int?
-  address_id Int?
-  addresses  addresses? @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  street     String?
+  city       String?
+  state      String?
+  zip_code   String?
+  country    String?
   companies  companies? @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   invoices   invoices[]
 }
@@ -75,11 +78,14 @@ model products {
 }
 
 model providers {
-  id         Int        @id @default(autoincrement())
-  name       String
-  address_id Int?
-  products   products[]
-  addresses  addresses? @relation(fields: [address_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id       Int        @id @default(autoincrement())
+  name     String
+  street   String?
+  city     String?
+  state    String?
+  zip_code String?
+  country  String?
+  products products[]
 }
 
 model roles {

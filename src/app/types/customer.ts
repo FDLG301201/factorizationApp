@@ -1,17 +1,18 @@
-import { Address } from "./address"
 import { Company } from "./company"
 
 export interface Customer {
     id: string
     identifier?: string
     name: string
-    email: string
+    email?: string
     phone: string
-    address_id: string
-    addresses?: Address
     company?: string
     companies?: Company
+    street?: string
+    city?: string
+    state?: string
+    zip_code?: string
+    country?: string
     notes?: string
-    createdAt: string
   }
   

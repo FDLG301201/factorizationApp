@@ -139,7 +139,11 @@ exports.Prisma.CompaniesScalarFieldEnum = {
   name: 'name',
   phone: 'phone',
   email: 'email',
-  address_id: 'address_id'
+  street: 'street',
+  city: 'city',
+  state: 'state',
+  zip_code: 'zip_code',
+  country: 'country'
 };
 
 exports.Prisma.CustomersScalarFieldEnum = {
@@ -150,7 +154,11 @@ exports.Prisma.CustomersScalarFieldEnum = {
   phone: 'phone',
   notes: 'notes',
   company_id: 'company_id',
-  address_id: 'address_id'
+  street: 'street',
+  city: 'city',
+  state: 'state',
+  zip_code: 'zip_code',
+  country: 'country'
 };
 
 exports.Prisma.InvoicesScalarFieldEnum = {
@@ -176,7 +184,11 @@ exports.Prisma.ProductsScalarFieldEnum = {
 exports.Prisma.ProvidersScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  address_id: 'address_id'
+  street: 'street',
+  city: 'city',
+  state: 'state',
+  zip_code: 'zip_code',
+  country: 'country'
 };
 
 exports.Prisma.RolesScalarFieldEnum = {

@@ -3,5 +3,9 @@ export interface Company {
     name: string
     phone: string
     email: string
-    address_id: string
+    street?: string
+    city?: string
+    state?: string
+    zip_code?: string
+    country?: string
 }
