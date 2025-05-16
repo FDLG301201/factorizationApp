@@ -36,24 +36,31 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
   const s = useTranslations("Status");
   
   const [formData, setFormData] = useState({
-    customer: "",
+    customer_id: "",
     amount: "",
+    phone: "",
     date: new Date().toISOString().split("T")[0],
-    dueDate: "",
+    due_date: "",
     status: "pending",
   })
 
   useEffect(() => {
     if (invoice) {
+      const foundCustomer = customers.find((c) => c.id === invoice.customer_id);
+
+      const parsedDate = new Date(invoice.date).toISOString().split("T")[0];
+      const parsedDueDate = new Date(invoice.due_date).toISOString().split("T")[0];
+
       setFormData({
-        customer: invoice.customer,
+        customer_id: invoice.customer_id,
+        phone: foundCustomer ? foundCustomer.phone : "",
         amount: invoice.amount.toString(),
-        date: invoice.date,
-        dueDate: invoice.dueDate,
+        date: parsedDate,
+        due_date: parsedDueDate,
         status: invoice.status,
-      })
+      });
     }
-  }, [invoice])
+  }, [invoice, customers]);
 
   const handleChange = (e:any) => {
     const { name, value } = e.target
@@ -63,28 +70,49 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
     })
   }
 
-  const handleCustomerChange = (event: React.SyntheticEvent, value: string | null) => {
-    setFormData({
-      ...formData,
-      customer: value || "",
-    })
-  }
+  const handleCustomerChange = (event: React.SyntheticEvent, value: Customer | null) => {
+    if (value) {
+      setFormData({
+        ...formData,
+        customer_id: value.id,
+        // customer: value.name,
+        phone: value.phone || "",
+      });
+    } else {
+      setFormData({
+        ...formData,
+        customer_id: "",
+        // customer: "",
+        phone: "",
+      });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
+
+    const parsedDate = new Date(formData.date);
+    const parsedDueDate = new Date(formData.due_date);
+
     onSubmit({
-      customer: formData.customer,
+      customer_id: formData.customer_id,
       amount: Number.parseFloat(formData.amount),
-      date: formData.date,
-      dueDate: formData.dueDate,
+      date: parsedDate,
+      due_date: parsedDueDate,
       status: formData.status as "pending" | "paid" | "overdue",
-    })
-  }
+      // customers: {
+      //   id: formData.customer_id,
+      //   name: formData.customer,
+      //   phone: formData.phone,
+      //   },
+      }
+    );
+  };
 
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="md" fullWidth>
       <DialogTitle>
-        <Typography variant="h6">{invoice ? t("edit-invoice") : t("create-new-invoice")}</Typography>
+        <Typography variant="h6" component="span">{invoice ? t("edit-invoice") : t("create-new-invoice")}</Typography>
       </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -92,8 +120,9 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
             <Grid size={{xs:12}}>
               <Autocomplete
                 id="customer-select"
-                options={customers.map((customer) => customer.name)}
-                value={formData.customer}
+                getOptionLabel={(option) => `${option.name} - ${option.identifier}`}
+                options={customers}
+                value={customers.find((c) => c.id === formData.customer_id) || null}
                 onChange={handleCustomerChange}
                 renderInput={(params) => (
                   <TextField {...params} required name="customer" label={g("customer")} fullWidth variant="outlined" />
@@ -153,12 +182,12 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, invoice }: 
               <TextField
                 required
                 id="dueDate"
-                name="dueDate"
+                name="due_date"
                 label={g("due-date")}
                 type="date"
                 fullWidth
                 variant="outlined"
-                value={formData.dueDate}
+                value={formData.due_date}
                 onChange={handleChange}
                 InputLabelProps={{
                   shrink: true,

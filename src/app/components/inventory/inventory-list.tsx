@@ -30,6 +30,8 @@ import {
 import { Inventory } from "@/app/types/inventory"
 import InventoryForm from "./inventory-form"
 import { useTranslations } from "next-intl"
+import { Provider } from "@/app/types/provider"
+import { Category } from "@/app/types/category"
 
 
 interface InventoryListProps {
@@ -37,13 +39,19 @@ interface InventoryListProps {
   onAddInventory: (inventory: Omit<Inventory, "id" | "createdAt">) => void
   onEditInventory: (id: string, inventory: Omit<Inventory, "id" | "createdAt">) => void
   onDeleteInventory: (id: string) => void
+  showActions?: boolean
+  providers: Provider[]
+  categories: Category[]
 }
 
 export default function InventoryList({
   inventories,
+  providers,
+  categories,
   onAddInventory,
   onEditInventory,
   onDeleteInventory,
+  showActions = true,
 }: InventoryListProps) {
 
   const t = useTranslations("Inventory");
@@ -69,6 +77,13 @@ export default function InventoryList({
     setPage(0)
   }
 
+  const filteredInventories = inventories.filter(
+    (inventory) =>
+      inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inventory.categories?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inventory.price.toString().includes(searchTerm),
+  )
+
   const handleAddClick = () => {
     setEditingInventory(null)
     setShowForm(true)
@@ -79,27 +94,25 @@ export default function InventoryList({
     setShowForm(true)
   }
 
-  const handleFormSubmit = (inventoryData: Omit<Inventory, "id" | "createdAt">) => {
-    if (editingInventory) {
-      onEditInventory(editingInventory.id, inventoryData)
-    } else {
-      onAddInventory(inventoryData)
+  const handleDeleteClick = (id: string) => {
+    onDeleteInventory(id)
+  }
+
+    const handleFormSubmit = (inventoryData: Omit<Inventory, "id" | "createdAt">) => {
+      if (editingInventory) {
+        onEditInventory(editingInventory.id.toString(), inventoryData)
+      } else {
+        onAddInventory(inventoryData)
+      }
+      setShowForm(false)
+      setEditingInventory(null)
     }
-    setShowForm(false)
-    setEditingInventory(null)
-  }
-
-  const handleFormCancel = () => {
-    setShowForm(false)
-    setEditingInventory(null)
-  }
-
-  const filteredInventories = inventories.filter(
-    (inventory) =>
-      inventory.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inventory.categories?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inventory.price.toString().includes(searchTerm),
-  )
+  
+    const handleFormCancel = () => {
+      setShowForm(false)
+      setEditingInventory(null)
+    }
+  
 
   return (
     <>
@@ -156,14 +169,16 @@ export default function InventoryList({
                 <TableCell>{inventory.price}</TableCell>
                 <TableCell>{inventory.quantity}</TableCell>
                 <TableCell>{inventory.providers?.name || "—"}</TableCell>
+                {showActions && (
                 <TableCell align="right">
                   <IconButton size="small" onClick={() => handleEditClick(inventory)}>
                     <EditIcon fontSize="small" />
                   </IconButton>
-                  <IconButton size="small" onClick={() => onDeleteInventory(inventory.id)}>
+                  <IconButton size="small" onClick={() => handleDeleteClick(inventory.id)}>
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </TableCell>
+                )}
               </TableRow>
             ))}
             {filteredInventories.length === 0 && (
@@ -183,11 +198,13 @@ export default function InventoryList({
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage={g("rows-per-page")}
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${g("of")} ${count}`}
         />
       </TableContainer>
 
       {showForm && (
-        <InventoryForm inventory={editingInventory} onSubmit={handleFormSubmit} onCancel={handleFormCancel} providers={[]} />
+        <InventoryForm inventory={editingInventory} onSubmit={handleFormSubmit} onCancel={handleFormCancel} providers={providers} categories={categories} />
       )}
     </>
   )

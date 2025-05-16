@@ -27,6 +27,7 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
   FilterList as FilterIcon,
+  Visibility as VisibilityIcon,
 } from "@mui/icons-material"
 import { Customer } from "@/app/types/customer"
 import CustomerForm from "./customer-form"
@@ -35,16 +36,20 @@ import { useTranslations } from "next-intl"
 
 interface CustomerListProps {
   customers: Customer[]
+  onConsultCustomer: (customer: Customer) => void
   onAddCustomer: (customer: Omit<Customer, "id" | "createdAt">) => void
   onEditCustomer: (id: string, customer: Omit<Customer, "id" | "createdAt">) => void
   onDeleteCustomer: (id: string) => void
+  showActions?: boolean
 }
 
 export default function CustomerList({
   customers,
+  onConsultCustomer,
   onAddCustomer,
   onEditCustomer,
   onDeleteCustomer,
+  showActions = true,
 }: CustomerListProps) {
 
   const t = useTranslations("Customers");
@@ -70,9 +75,17 @@ export default function CustomerList({
     setPage(0)
   }
 
+  const handleConsultClick = (customer: Customer) => {
+    onConsultCustomer(customer)
+  }
+
   const handleAddClick = () => {
     setEditingCustomer(null)
     setShowForm(true)
+  }
+
+  const handleDeleteClick = (id: string) => {
+    onDeleteCustomer(id)
   }
 
   const handleEditClick = (customer: Customer) => {
@@ -97,9 +110,13 @@ export default function CustomerList({
 
   const filteredCustomers = customers.filter(
     (customer) =>
+      customer.street?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.identifier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.companies?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.phone.includes(searchTerm),
   );
 
@@ -149,7 +166,9 @@ export default function CustomerList({
                 <TableCell>{g("email")}</TableCell>
                 <TableCell>{g("phone")}</TableCell>
                 <TableCell>{g("location")}</TableCell>
+                {showActions && (
                 <TableCell align="right">{g("actions")}</TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -161,16 +180,21 @@ export default function CustomerList({
                   <TableCell>{customer.email}</TableCell>
                   <TableCell>{customer.phone}</TableCell>
                   <TableCell>
-                    {customer.addresses?.city}, {customer.addresses?.street}, {customer.addresses?.country}
+                  {customer.street}, {customer.city}, {customer.country}
                   </TableCell>
+                  {showActions && (
                   <TableCell align="right">
+                    <IconButton size="small" onClick={() => handleConsultClick(customer)}>
+                      <VisibilityIcon fontSize="small" />
+                    </IconButton>
                     <IconButton size="small" onClick={() => handleEditClick(customer)}>
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={() => onDeleteCustomer(customer.id.toString())}>
+                    <IconButton size="small" onClick={() => handleDeleteClick(customer.id.toString())}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
+                  )}
                 </TableRow>
               ))}
               {filteredCustomers.length === 0 && (
@@ -190,6 +214,8 @@ export default function CustomerList({
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage={g("rows-per-page")}
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${g("of")} ${count}`}
           />
         </TableContainer>
 

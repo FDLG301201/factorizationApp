@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Box, Container, Paper, Typography, Button, Divider, Snackbar, Alert, Backdrop, CircularProgress } from "@mui/material"
+import { Box, Container, Paper, Typography, Button, Divider, Snackbar, Alert, Backdrop, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material"
 import { Add as AddIcon } from "@mui/icons-material"
 import InvoiceForm from "@/app/components/invoices/invoice-form"
 import InvoiceList from "@/app/components/invoices/invoice-list"
@@ -19,6 +19,9 @@ export default function InvoicesPage() {
   const [editingInvoice, setEditingInvoice] = useState<Invoice | undefined>(undefined)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInvoices()
@@ -53,32 +56,64 @@ export default function InvoicesPage() {
 
   }
 
-  const handleCreateInvoice = (invoice: Omit<Invoice, "id">) => {
-    const newInvoice = {
-      ...invoice,
-      id: Math.random().toString(36).substr(2, 9),
+  const handleCreateInvoice = async (invoice: Omit<Invoice, "id">) => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/invoices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(invoice),
+      })
+      const data = await response.json()
+      fetchInvoices();
+      setSuccessMessage(t("invoice-created"));
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false);
+      setShowInvoiceForm(false);
     }
-    setInvoices([...invoices, newInvoice])
-    setShowInvoiceForm(false)
   }
 
-  const handleEditInvoice = (id: string, updatedInvoice: Omit<Invoice, "id">) => {
-    setInvoices(
-      invoices.map((invoice) =>
-        invoice.id === id
-          ? {
-            ...updatedInvoice,
-            id,
-          }
-          : invoice,
-      ),
-    )
-    setShowInvoiceForm(false)
-    setEditingInvoice(undefined)
+  const handleEditInvoice = async (id: string, updatedInvoice: Omit<Invoice, "id">) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/invoices/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedInvoice),
+      });
+      const data = await response.json();
+      fetchInvoices();
+      setSuccessMessage(t("invoice-updated"));
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false);
+      setShowInvoiceForm(false);
+      setEditingInvoice(undefined);
+    }
   }
 
-  const handleDeleteInvoice = (id: string) => {
-    setInvoices(invoices.filter((invoice) => invoice.id !== id))
+  const handleDeleteInvoice = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/invoices/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Error deleting invoice");
+      fetchInvoices();
+      setShowDeleteModal(false);
+      setSuccessMessage(t("invoice-deleted"));
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleAddClick = () => {
@@ -89,6 +124,11 @@ export default function InvoicesPage() {
   const handleEditClick = (invoice: Invoice) => {
     setEditingInvoice(invoice)
     setShowInvoiceForm(true)
+  }
+
+  const handleDeleteClick = (id: string) => {
+    setSelectedInvoiceId(id);
+    setShowDeleteModal(true);
   }
 
   return (
@@ -109,7 +149,7 @@ export default function InvoicesPage() {
           invoices={invoices}
           onCreateClick={handleAddClick}
           onEditClick={handleEditClick}
-          onDeleteClick={handleDeleteInvoice}
+          onDeleteClick={handleDeleteClick}
         />
       </Paper>
 
@@ -142,6 +182,44 @@ export default function InvoicesPage() {
           {error}
         </Alert>
       </Snackbar>
+
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={4000}
+        onClose={() => setSuccessMessage(null)}
+      >
+        <Alert
+          onClose={() => setSuccessMessage(null)}
+          severity="success"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
+
+      <Dialog
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {g("confirmation")}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {t("sure-delete-invoice")}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteModal(false)}>{g("cancel")}</Button>
+          <Button onClick={() => selectedInvoiceId && handleDeleteInvoice(selectedInvoiceId)}>
+            {t("delete-invoice")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
 
     </Container>
   )

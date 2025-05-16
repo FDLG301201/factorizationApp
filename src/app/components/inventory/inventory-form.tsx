@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import {
   Autocomplete,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -19,54 +20,69 @@ import {
 import { Inventory } from "@/app/types/inventory"
 import { Provider } from "@/app/types/provider"
 import { useTranslations } from "next-intl"
+import { Category } from "@/app/types/category"
 
 interface InventoryFormProps {
   inventory: Inventory | null
   onSubmit: (inventoryData: Omit<Inventory, "id" | "createdAt">) => void
   onCancel: () => void
   providers: Provider[]
+  categories: Category[]
 }
 
-export default function InventoryForm({ inventory, onSubmit, onCancel, providers }: InventoryFormProps) {
+export default function InventoryForm({ inventory, onSubmit, onCancel, providers, categories }: InventoryFormProps) {
 
   const t = useTranslations("Inventory");
   const g = useTranslations("General");
-  const [formData, setFormData] = useState<Inventory>({
-    id: "",
+  const [formData, setFormData] = useState({
     name: "",
     price: 0,
     quantity: 0,
     description: "",
-    category: "",
-    provider: "",
+    category_id: "",
+    provider_id: "",
     customPrice: 0
-  })
+  });
+  const [checked, setChecked] = useState(false);
+
 
   useEffect(() => {
     if (inventory) {
       setFormData({
-        id: inventory.id,
         name: inventory.name,
         price: inventory.price,
         quantity: inventory.quantity,
-        description: inventory.description,
-        category: inventory.category,
-        provider: inventory.provider,
+        description: inventory.description || "",
+        category_id: inventory.category_id || "",
+        provider_id: inventory.provider_id || "",
         customPrice: inventory.customPrice || 0
       })
     }
-  }, [inventory])
+  }, [inventory]);
 
-const handleProviderChange = (event: React.SyntheticEvent, value: string | null) => {
-  setFormData({
-    ...formData,
-    provider: value || "",
-   })
-}
+  // useEffect(() => {
+  //   if (inventory?.customPrice !== 0) {
+  //     setChecked(true);
+  //   }
+  // }, [inventory?.customPrice])
 
-const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProviderChange = (event: React.SyntheticEvent, value: Provider | null) => {
+    setFormData({
+      ...formData,
+      provider_id: value?.id || "",
+    })
+  }
+
+  const handleCategoryChange = (event: React.SyntheticEvent, value: Category | null) => {
+    setFormData({
+      ...formData,
+      category_id: value?.id || "",
+    })
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-  
+
     if (name.includes(".")) {
       const [parent, child] = name.split(".");
       setFormData((prevFormData) => {
@@ -92,10 +108,14 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSubmit(formData)
   }
 
+  const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
+
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="lg" fullWidth>
       <DialogTitle>
-        <Typography variant="h6">{inventory ? t("edit-product") : t("add-new-product")}</Typography>
+        <Typography variant="h6" component="span">{inventory ? t("edit-product") : t("add-new-product")}</Typography>
       </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -146,14 +166,53 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               />
             </Grid>
 
-            <Grid size={{xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Checkbox
+                checked={checked}
+                onChange={handleCheckChange}
+                inputProps={{ 'aria-label': 'controlled' }}
+              />
+              {t("custom-price")}
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Autocomplete
+                id="category-select"
+                options={categories}
+                getOptionLabel={(option) => option.name}
+                value={categories.find((p) => p.id === formData.category_id) || null}
+                onChange={handleCategoryChange}
+                renderInput={(params) => (
+                  <TextField {...params} required name="category_id" label={g("category")} fullWidth variant="outlined" />
+                )}
+              />
+            </Grid>
+
+            {checked && (
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  required
+                  id="customPrice"
+                  name="customPrice"
+                  label={t("custom-price")}
+                  fullWidth
+                  variant="outlined"
+                  type="number"
+                  value={formData.customPrice}
+                  onChange={handleChange}
+                />
+              </Grid>
+            )}
+
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Autocomplete
                 id="provider-select"
-                options={providers.map((provider) => provider.name)}
-                value={formData.provider}
+                options={providers}
+                getOptionLabel={(option) => option.name}
+                value={providers.find((p) => p.id === formData.provider_id) || null}
                 onChange={handleProviderChange}
                 renderInput={(params) => (
-                  <TextField {...params} required name="provider" label={g("provider")} fullWidth variant="outlined" />
+                  <TextField {...params} required name="provider_id" label={g("provider")} fullWidth variant="outlined" />
                 )}
               />
             </Grid>

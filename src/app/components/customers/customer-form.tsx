@@ -4,13 +4,18 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import {
+  Alert,
+  Autocomplete,
+  Backdrop,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
   Grid,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material"
@@ -28,21 +33,39 @@ export default function CustomerForm({ customer, onSubmit, onCancel }: CustomerF
 
   const t = useTranslations("Customers");
   const g = useTranslations("General");
+  const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  const fetchCompanies = async () => {
+    try {
+      setLoadingCompanies(true);
+      const response = await fetch("/api/companies");
+      const data = await response.json();
+      setCompanies(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
 
   const [formData, setFormData] = useState({
     identifier: "",
     name: "",
     email: "",
     phone: "",
-    company: "",
+    company_id: "",
     notes: "",
-    address: {
-      street: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "",
-    },
+    street: "",
+    city: "",
+    state: "",
+    zip_code: "",
+    country: "",
   })
 
   useEffect(() => {
@@ -50,38 +73,42 @@ export default function CustomerForm({ customer, onSubmit, onCancel }: CustomerF
       setFormData({
         identifier: customer.identifier ?? "",
         name: customer.name,
-        email: customer.email,
+        email: customer.email || "",
         phone: customer.phone,
-        company: customer.company || "",
+        company_id: customer.company_id || "",
         notes: customer.notes || "",
-        address: { ...customer.address },
+        street: customer.street || "",
+        city: customer.city || "",
+        state: customer.state || "",
+        zip_code: customer.zip_code || "",
+        country: customer.country || "",
       })
     }
   }, [customer])
 
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target
+  //   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     const { name, value } = e.target
 
-//     if (name.includes(".")) {
-//       const [parent, child] = name.split(".")
-//       setFormData({
-//         ...formData,
-//         [parent]: {
-//           ...formData[parent as keyof typeof formData],
-//           [child]: value,
-//         },
-//       })
-//     } else {
-//       setFormData({
-//         ...formData,
-//         [name]: value,
-//       })
-//     }
-//   }
+  //     if (name.includes(".")) {
+  //       const [parent, child] = name.split(".")
+  //       setFormData({
+  //         ...formData,
+  //         [parent]: {
+  //           ...formData[parent as keyof typeof formData],
+  //           [child]: value,
+  //         },
+  //       })
+  //     } else {
+  //       setFormData({
+  //         ...formData,
+  //         [name]: value,
+  //       })
+  //     }
+  //   }
 
-const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-  
+
     if (name.includes(".")) {
       const [parent, child] = name.split(".");
       setFormData((prevFormData) => {
@@ -110,7 +137,8 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   return (
     <Dialog open={true} onClose={onCancel} maxWidth="lg" fullWidth>
       <DialogTitle>
-        <Typography variant="h6">{customer ? t("edit-customer") : t("add-customer")}</Typography>
+        <Typography variant="h5" component="span">{customer ? t("edit-customer") : t("add-customer")}</Typography>
+        <Divider sx={{ mt: 2 }} />
       </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -147,7 +175,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 6 }}>
+            {/* <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 id="company"
                 name="company"
@@ -157,6 +185,32 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 value={formData.company}
                 onChange={handleChange}
               />
+            </Grid> */}
+
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Autocomplete
+                id="company"
+                options={companies}
+                loading={loadingCompanies}
+                getOptionLabel={(option) => option.name}
+                value={companies.find((c) => c.id === formData.company_id) || null}
+                onChange={(_, newValue) => {
+                  setFormData({
+                    ...formData,
+                    company_id: newValue ? newValue.id : "",
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={g("company")}
+                    variant="outlined"
+                    fullWidth
+                  />
+                )}
+              />
+
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -197,11 +251,11 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <TextField
                 required
                 id="street"
-                name="address.street"
+                name="street"
                 label={g("street-address")}
                 fullWidth
                 variant="outlined"
-                value={formData.address.street}
+                value={formData.street}
                 onChange={handleChange}
               />
             </Grid>
@@ -210,11 +264,11 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <TextField
                 required
                 id="city"
-                name="address.city"
+                name="city"
                 label={g("city")}
                 fullWidth
                 variant="outlined"
-                value={formData.address.city}
+                value={formData.city}
                 onChange={handleChange}
               />
             </Grid>
@@ -223,11 +277,11 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <TextField
                 required
                 id="state"
-                name="address.state"
+                name="state"
                 label={g("state-province")}
                 fullWidth
                 variant="outlined"
-                value={formData.address.state}
+                value={formData.state}
                 onChange={handleChange}
               />
             </Grid>
@@ -236,11 +290,11 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <TextField
                 required
                 id="zipCode"
-                name="address.zipCode"
+                name="zip_code"
                 label={g("zip-postal-code")}
                 fullWidth
                 variant="outlined"
-                value={formData.address.zipCode}
+                value={formData.zip_code}
                 onChange={handleChange}
               />
             </Grid>
@@ -249,11 +303,11 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <TextField
                 required
                 id="country"
-                name="address.country"
+                name="country"
                 label={g("country")}
                 fullWidth
                 variant="outlined"
-                value={formData.address.country}
+                value={formData.country}
                 onChange={handleChange}
               />
             </Grid>
