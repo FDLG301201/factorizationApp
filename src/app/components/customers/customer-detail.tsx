@@ -26,7 +26,7 @@ export default function CustomerDetail({ customer, invoices, onEdit }: CustomerD
   const locale = useLocale();
   const [showForm, setShowForm] = useState(false)
 
-  const customerInvoices = invoices.filter((invoice) => invoice.customers.name === customer.name)
+  const customerInvoices = invoices.filter((invoice) => invoice.customers?.name === customer.name)
 
   const totalBilled = customerInvoices.reduce((sum, invoice) => sum + Number(invoice.amount), 0)
   const totalPaid = customerInvoices
@@ -212,7 +212,7 @@ export default function CustomerDetail({ customer, invoices, onEdit }: CustomerD
                       }}
                     >
                       <Typography variant="body2">
-                        INV-{invoice.id} ({formatDate(invoice.date)})
+                        INV-{invoice.id} ({formatDate(invoice.date.toString())})
                       </Typography>
                       <Box>
                         <Chip
