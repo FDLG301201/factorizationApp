@@ -9,15 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model addresses {
-  id       Int     @id @default(autoincrement())
-  street   String?
-  city     String?
-  state    String?
-  zip_code String?
-  country  String?
-}
-
 model categories {
   id       Int        @id @default(autoincrement())
   name     String?    @unique
@@ -34,6 +25,8 @@ model companies {
   state     String?
   zip_code  String?
   country   String?
+  user_id   Int?
+  users     users?      @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_companies_user")
   customers customers[]
 }
 
@@ -50,31 +43,44 @@ model customers {
   state      String?
   zip_code   String?
   country    String?
+  user_id    Int?
   companies  companies? @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?     @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_customers_user")
   invoices   invoices[]
 }
 
 model invoices {
-  id          Int       @id @default(autoincrement())
-  customer_id Int
-  amount      Decimal   @db.Money
-  date        DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
-  due_date    DateTime  @db.Date
-  status      String?
-  customers   customers @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               Int               @id @default(autoincrement())
+  customer_id      Int
+  amount           Decimal?          @db.Money
+  date             DateTime          @default(dbgenerated("CURRENT_DATE")) @db.Date
+  due_date         DateTime          @db.Date
+  user_id          Int?
+  payment_date     DateTime?         @db.Date
+  status_id        Int?              @default(1)
+  subtotal         Decimal?          @db.Money
+  tax_amount       Decimal?          @db.Money
+  discount_amount  Decimal?          @db.Money
+  invoice_items    invoice_items[]
+  invoice_statuses invoice_statuses? @relation(fields: [status_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_status")
+  users            users?            @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_invoices_user")
+  customers        customers         @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model products {
-  id           Int         @id @default(autoincrement())
-  name         String?
-  price        Decimal     @db.Money
-  custom_price Decimal?    @db.Money
-  quantity     Int?        @default(0)
-  provider_id  Int?
-  description  String?
-  category_id  Int?
-  categories   categories? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  providers    providers?  @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id            Int             @id @default(autoincrement())
+  name          String?
+  price         Decimal         @db.Money
+  custom_price  Decimal?        @db.Money
+  quantity      Int?            @default(0)
+  provider_id   Int?
+  description   String?
+  category_id   Int?
+  user_id       Int?
+  invoice_items invoice_items[]
+  users         users?          @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_products_user")
+  categories    categories?     @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  providers     providers?      @relation(fields: [provider_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model providers {
@@ -85,7 +91,9 @@ model providers {
   state    String?
   zip_code String?
   country  String?
+  user_id  Int?
   products products[]
+  users    users?     @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_providers_user")
 }
 
 model roles {
@@ -95,10 +103,34 @@ model roles {
 }
 
 model users {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
-  email    String @unique
-  role_id  Int?
-  roles    roles? @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id        Int         @id @default(autoincrement())
+  username  String      @unique
+  password  String
+  email     String      @unique
+  role_id   Int?
+  companies companies[]
+  customers customers[]
+  invoices  invoices[]
+  products  products[]
+  providers providers[]
+  roles     roles?      @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model invoice_items {
+  id                Int      @id @default(autoincrement())
+  invoice_id        Int
+  product_id        Int
+  quantity          Int
+  unit_price        Decimal  @db.Money
+  item_custom_price Decimal? @db.Money
+  subtotal          Decimal  @default(dbgenerated("(quantity * COALESCE(item_custom_price, unit_price))")) @db.Money
+  invoices          invoices @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  products          products @relation(fields: [product_id], references: [id], onUpdate: NoAction)
+}
+
+model invoice_statuses {
+  id       Int        @id @default(autoincrement())
+  name     String     @unique
+  invoices invoices[]
 }

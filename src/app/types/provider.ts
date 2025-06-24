@@ -1,3 +1,6 @@
+import { User } from "next-auth"
+// import { User } from "./user"
+
 export interface Provider {
     id: string
     name: string
@@ -6,5 +9,7 @@ export interface Provider {
     state?: string
     zip_code?: string
     country?: string
+    user_id?: string
+    users?: User
   }
   

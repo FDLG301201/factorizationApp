@@ -1,4 +1,6 @@
 import { Company } from "./company"
+import { User } from "next-auth"
+// import { User } from "./user"
 
 export interface Customer {
     id: string
@@ -14,5 +16,7 @@ export interface Customer {
     zip_code?: string
     country?: string
     notes?: string
+    user_id?: string
+    users?: User
   }
   

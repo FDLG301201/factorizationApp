@@ -22,11 +22,11 @@ export default function BillingStats({ invoices }: BillingStatsProps) {
   const theme = useMuiTheme()
   const isDarkMode = theme.palette.mode === "dark"
 
-  const totalPaid = invoices.filter((inv) => inv.status?.toLowerCase() === "paid").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+  const totalPaid = invoices.filter((inv) => inv.invoice_statuses?.name?.toLowerCase() === "paid").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
 
-  const totalPending = invoices.filter((inv) => inv.status?.toLowerCase() === "pending").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+  const totalPending = invoices.filter((inv) => inv.invoice_statuses?.name?.toLowerCase() === "pending").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
 
-  const totalOverdue = invoices.filter((inv) => inv.status?.toLowerCase() === "overdue").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+  const totalOverdue = invoices.filter((inv) => inv.invoice_statuses?.name?.toLowerCase() === "overdue").reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {

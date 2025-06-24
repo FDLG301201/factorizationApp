@@ -29,9 +29,10 @@ interface InvoiceListProps {
   onDeleteClick: (id: string) => void
   showActions?: boolean
   showCreateButton?: boolean
+  showPagination?: boolean
 }
 
-export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick, showActions = true, showCreateButton = true }: InvoiceListProps) {
+export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick, showActions = true, showCreateButton = true, showPagination = true }: InvoiceListProps) {
   const locale = useLocale();
   const t = useTranslations("Invoices");
   const g = useTranslations("General");
@@ -100,8 +101,8 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
   const filteredInvoices = invoices.filter(
     (invoice) =>
       invoice.customers?.identifier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.customers?.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      invoice.invoice_statuses?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.customers?.name?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   return (
@@ -163,12 +164,12 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
                 <TableCell>{invoice.customers?.identifier}</TableCell>
                 <TableCell>{formatDate(invoice.date.toString())}</TableCell>
                 <TableCell>{formatDate(invoice.due_date.toString())}</TableCell>
-                <TableCell align="right">{formatCurrency(invoice.amount)}</TableCell>
+                <TableCell align="right">{formatCurrency(invoice.amount || 0)}</TableCell>
                 <TableCell align="center">
                   <Chip
                     // label={invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                    label={s(invoice.status)}
-                    color={getStatusColor(invoice.status) as any}
+                    label={s(invoice.invoice_statuses?.name || "")}
+                    color={getStatusColor(invoice.invoice_statuses?.name || "") as any}
                     size="small"
                   />
                 </TableCell>
@@ -186,7 +187,9 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
             ))}
           </TableBody>
         </Table>
-        <TablePagination
+
+        {showPagination && (
+          <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={filteredInvoices.length}
@@ -197,6 +200,7 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
           labelRowsPerPage={g("rows-per-page")}
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${g("of")} ${count}`}
         />
+        )}
       </TableContainer>
     </>
   )

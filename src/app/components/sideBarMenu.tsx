@@ -34,6 +34,12 @@ export default function SidebarMenu({ locale }: { locale: string }) {
         </ListItemButton>
       </ListItem>
       <ListItem disablePadding>
+        <ListItemButton component={Link} href={`/${locale}/express-invoices`}>
+          <ListItemIcon><ReceiptIcon /></ListItemIcon>
+          <ListItemText primary={t("express-invoices")} />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
         <ListItemButton component={Link} href={`/${locale}/inventory`}>
           <ListItemIcon><InventoryIcon /></ListItemIcon>
           <ListItemText primary={t("inventory")} />

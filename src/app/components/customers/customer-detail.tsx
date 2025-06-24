@@ -6,7 +6,7 @@ import { Customer } from "@/app/types/customer"
 import { Invoice } from "@/app/types/invoice"
 import { useLocale, useTranslations } from "next-intl"
 import CustomerForm from "./customer-form"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 
 interface CustomerDetailProps {
@@ -30,13 +30,13 @@ export default function CustomerDetail({ customer, invoices, onEdit }: CustomerD
 
   const totalBilled = customerInvoices.reduce((sum, invoice) => sum + Number(invoice.amount), 0)
   const totalPaid = customerInvoices
-    .filter((invoice) => invoice.status === "paid")
+    .filter((invoice) => invoice.status_id === "3")
     .reduce((sum, invoice) => sum + Number(invoice.amount), 0)
   const totalPending = customerInvoices
-    .filter((invoice) => invoice.status === "pending")
+    .filter((invoice) => invoice.status_id === "4")
     .reduce((sum, invoice) => sum + Number(invoice.amount), 0)
   const totalOverdue = customerInvoices
-    .filter((invoice) => invoice.status === "overdue")
+    .filter((invoice) => invoice.status_id === "5")
     .reduce((sum, invoice) => sum + Number(invoice.amount), 0)
 
 
@@ -83,13 +83,13 @@ export default function CustomerDetail({ customer, invoices, onEdit }: CustomerD
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "paid":
+  const getStatusColor = (idStatus: number) => {
+    switch (idStatus) {
+      case 3:
         return "success"
-      case "pending":
+      case 4:
         return "warning"
-      case "overdue":
+      case 5:
         return "error"
       default:
         return "default"
@@ -216,13 +216,13 @@ export default function CustomerDetail({ customer, invoices, onEdit }: CustomerD
                       </Typography>
                       <Box>
                         <Chip
-                          label={s(invoice.status)}
-                          color={getStatusColor(invoice.status) as any}
+                          label={s(invoice.invoice_statuses?.name.toLowerCase() || "")}
+                          color={getStatusColor(Number(invoice.status_id)) as any}
                           size="small"
                           sx={{ mr: 3 }}
                         />
                         <Typography variant="body2" component="span">
-                          {formatCurrency(invoice.amount)}
+                          {formatCurrency(invoice.amount || 0)}
                         </Typography>
                       </Box>
                     </Box>

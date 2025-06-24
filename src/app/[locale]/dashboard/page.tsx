@@ -93,6 +93,7 @@ export default function Dashboard() {
                             onDeleteClick={() => { }}
                             showActions={false}
                             showCreateButton={false}
+                            showPagination={false}
                         />
                     </Paper>
                 </Grid>
@@ -108,7 +109,7 @@ export default function Dashboard() {
                             overflow: "auto",
                         }}
                     >
-                        <RecentPayments invoices={invoices.filter((inv) => inv.status === "paid")} />
+                        <RecentPayments invoices={invoices.filter((inv) => inv.invoice_statuses?.name.toLowerCase() === "paid")} />
                     </Paper>
                 </Grid>
             </Grid>

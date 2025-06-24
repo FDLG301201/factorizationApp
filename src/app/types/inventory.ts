@@ -1,3 +1,5 @@
+import { User } from "next-auth"
+// import { User } from "./user"
 import { Category } from "./category"
 import { Provider } from "./provider"
 
@@ -12,5 +14,7 @@ export interface Inventory {
     description?: string
     category_id?: string
     categories?: Category
+    user_id?: string
+    users?: User
   } 
   

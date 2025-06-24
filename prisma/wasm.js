@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.7.0
- * Query Engine version: 3cff47a7f5d65c3ea74883f1d736e41d68ce91ed
+ * Prisma Client JS version: 6.10.1
+ * Query Engine version: 9b628578b3b7cae625e8c927178f15a170e74a9c
  */
 Prisma.prismaVersion = {
-  client: "6.7.0",
-  engine: "3cff47a7f5d65c3ea74883f1d736e41d68ce91ed"
+  client: "6.10.1",
+  engine: "9b628578b3b7cae625e8c927178f15a170e74a9c"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -120,15 +120,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.AddressesScalarFieldEnum = {
-  id: 'id',
-  street: 'street',
-  city: 'city',
-  state: 'state',
-  zip_code: 'zip_code',
-  country: 'country'
-};
-
 exports.Prisma.CategoriesScalarFieldEnum = {
   id: 'id',
   name: 'name'
@@ -143,7 +134,8 @@ exports.Prisma.CompaniesScalarFieldEnum = {
   city: 'city',
   state: 'state',
   zip_code: 'zip_code',
-  country: 'country'
+  country: 'country',
+  user_id: 'user_id'
 };
 
 exports.Prisma.CustomersScalarFieldEnum = {
@@ -158,7 +150,8 @@ exports.Prisma.CustomersScalarFieldEnum = {
   city: 'city',
   state: 'state',
   zip_code: 'zip_code',
-  country: 'country'
+  country: 'country',
+  user_id: 'user_id'
 };
 
 exports.Prisma.InvoicesScalarFieldEnum = {
@@ -167,7 +160,12 @@ exports.Prisma.InvoicesScalarFieldEnum = {
   amount: 'amount',
   date: 'date',
   due_date: 'due_date',
-  status: 'status'
+  user_id: 'user_id',
+  payment_date: 'payment_date',
+  status_id: 'status_id',
+  subtotal: 'subtotal',
+  tax_amount: 'tax_amount',
+  discount_amount: 'discount_amount'
 };
 
 exports.Prisma.ProductsScalarFieldEnum = {
@@ -178,7 +176,8 @@ exports.Prisma.ProductsScalarFieldEnum = {
   quantity: 'quantity',
   provider_id: 'provider_id',
   description: 'description',
-  category_id: 'category_id'
+  category_id: 'category_id',
+  user_id: 'user_id'
 };
 
 exports.Prisma.ProvidersScalarFieldEnum = {
@@ -188,7 +187,8 @@ exports.Prisma.ProvidersScalarFieldEnum = {
   city: 'city',
   state: 'state',
   zip_code: 'zip_code',
-  country: 'country'
+  country: 'country',
+  user_id: 'user_id'
 };
 
 exports.Prisma.RolesScalarFieldEnum = {
@@ -202,6 +202,21 @@ exports.Prisma.UsersScalarFieldEnum = {
   password: 'password',
   email: 'email',
   role_id: 'role_id'
+};
+
+exports.Prisma.Invoice_itemsScalarFieldEnum = {
+  id: 'id',
+  invoice_id: 'invoice_id',
+  product_id: 'product_id',
+  quantity: 'quantity',
+  unit_price: 'unit_price',
+  item_custom_price: 'item_custom_price',
+  subtotal: 'subtotal'
+};
+
+exports.Prisma.Invoice_statusesScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
 };
 
 exports.Prisma.SortOrder = {
@@ -221,7 +236,6 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  addresses: 'addresses',
   categories: 'categories',
   companies: 'companies',
   customers: 'customers',
@@ -229,7 +243,9 @@ exports.Prisma.ModelName = {
   products: 'products',
   providers: 'providers',
   roles: 'roles',
-  users: 'users'
+  users: 'users',
+  invoice_items: 'invoice_items',
+  invoice_statuses: 'invoice_statuses'
 };
 
 /**

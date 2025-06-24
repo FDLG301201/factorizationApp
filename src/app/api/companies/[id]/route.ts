@@ -1,7 +1,8 @@
 import { prisma } from '../../../../../lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '../../../../../lib/auth';
 
-// Obtener empresa por ID
+// Obtener empresa por ID (solo si pertenece al usuario autenticado)
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -9,12 +10,21 @@ export async function GET(
   const id = (await params).id;
 
   try {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    
     const company = await prisma.companies.findUnique({
-      where: { id: parseInt(id) }
+      where: { 
+        id: parseInt(id),
+        user_id: user.id
+      }
     });
 
     if (!company) {
-      return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Empresa no encontrada o no tienes permisos para acceder' }, { status: 404 });
     }
 
     return NextResponse.json(company);
@@ -23,7 +33,7 @@ export async function GET(
   }
 }
 
-// Actualizar empresa por ID
+// Actualizar empresa por ID (solo si pertenece al usuario autenticado)
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -31,10 +41,31 @@ export async function PUT(
   const id = (await params).id;
 
   try {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    
+    // Verificar que la empresa pertenece al usuario
+    const company = await prisma.companies.findUnique({
+      where: { 
+        id: parseInt(id),
+        user_id: user.id
+      }
+    });
+    
+    if (!company) {
+      return NextResponse.json({ error: 'Empresa no encontrada o no tienes permisos para modificarla' }, { status: 404 });
+    }
+    
     const data = await req.json();
     const updated = await prisma.companies.update({
       where: { id: parseInt(id) },
-      data
+      data: {
+        ...data,
+        user_id: user.id // Asegurarse de que sigue asociada al mismo usuario
+      }
     });
 
     return NextResponse.json(updated);
@@ -43,7 +74,7 @@ export async function PUT(
   }
 }
 
-// Eliminar empresa por ID
+// Eliminar empresa por ID (solo si pertenece al usuario autenticado)
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -51,11 +82,29 @@ export async function DELETE(
   const id = (await params).id;
 
   try {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    
+    // Verificar que la empresa pertenece al usuario
+    const company = await prisma.companies.findUnique({
+      where: { 
+        id: parseInt(id),
+        user_id: user.id
+      }
+    });
+    
+    if (!company) {
+      return NextResponse.json({ error: 'Empresa no encontrada o no tienes permisos para eliminarla' }, { status: 404 });
+    }
+    
     await prisma.companies.delete({
       where: { id: parseInt(id) }
     });
 
-    return NextResponse.json({ message: 'Company deleted' });
+    return NextResponse.json({ message: 'Empresa eliminada correctamente' });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

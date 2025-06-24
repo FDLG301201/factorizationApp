@@ -53,7 +53,7 @@ export default function RecentPayments({ invoices }: RecentPaymentsProps) {
             <ListItem key={invoice.id} divider>
               <ListItemText primary={invoice.customers?.name + " - " + invoice.customers?.identifier} secondary={` ${g("payment-received-on")}  ${formatDate(invoice.date.toString())}`} />
               <Typography variant="body2" color="text.secondary">
-                {formatCurrency(invoice.amount)}
+                {formatCurrency(invoice.amount || 0)}
               </Typography>
             </ListItem>
           ))
