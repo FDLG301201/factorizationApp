@@ -1,26 +1,28 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Container,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  InputAdornment,
-  Paper,
-  Radio,
-  RadioGroup,
-  Stack,
-  TextField,
+import { 
+  Box, 
+  Button, 
+  Card, 
+  CardContent, 
+  Container, 
+  Divider, 
+  FormControl, 
+  FormControlLabel, 
+  Grid, 
+  IconButton, 
+  InputAdornment, 
+  Paper, 
+  Radio, 
+  RadioGroup, 
+  Stack, 
+  TextField, 
   Typography,
   Alert,
   Snackbar,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material"
 import {
   Add as AddIcon,
@@ -53,16 +55,29 @@ export default function ExpressInvoicesPage() {
   const [invoiceItems, setInvoiceItems] = useState<ExpressInvoiceItem[]>([])
   const [customerName, setCustomerName] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  // Funciones para mostrar notificaciones
+  const showError = (message: string) => {
+    setErrorMessage(message);
+    setError(true);
+  };
+
+  const showSuccess = (message: string) => {
+    setSuccessMessage(message);
+    setSuccess(true);
+  };
 
   // Estados para cálculos
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
   const [discountValue, setDiscountValue] = useState<string>('')
-  const [taxPercent, setTaxPercent] = useState<string>('16') // IVA por defecto
+  const [taxPercent, setTaxPercent] = useState<string>('18') // ITBIS por defecto
 
   // Cálculos
-  const subtotal = invoiceItems.reduce((sum, item) => sum + item.total, 0)
+  const subtotal = invoiceItems.reduce((sum, item) => sum + Number(item.total), 0)
   const discountAmount = discountValue ? 
     (discountType === 'percentage' ? 
       (subtotal * parseFloat(discountValue)) / 100 : 
@@ -97,7 +112,7 @@ export default function ExpressInvoicesPage() {
       setProducts(data)
       setFilteredProducts(data)
     } catch (err: any) {
-      setError('Error al cargar productos: ' + err.message)
+      showError('Error al cargar productos: ' + err.message);
     } finally {
       setLoading(false)
     }
@@ -115,9 +130,9 @@ export default function ExpressInvoicesPage() {
         id: Math.random().toString(36).substr(2, 9),
         product_id: product.id,
         product_name: product.name,
-        price: product.price,
+        price: Number(product.price),
         quantity: 1,
-        total: product.price
+        total: Number(product.price)
       }
       setInvoiceItems([...invoiceItems, newItem])
     }
@@ -132,7 +147,7 @@ export default function ExpressInvoicesPage() {
     setInvoiceItems(items =>
       items.map(item =>
         item.id === itemId
-          ? { ...item, quantity: newQuantity, total: item.price * newQuantity }
+          ? { ...item, quantity: newQuantity, total: Number(item.price) * newQuantity }
           : item
       )
     )
@@ -146,14 +161,13 @@ export default function ExpressInvoicesPage() {
     setInvoiceItems([])
     setCustomerName("")
     setDiscountValue("")
-    setTaxPercent("16")
-    setSuccess(null)
-    setError(null)
+    setTaxPercent("18")
+    // No limpiamos notificaciones aquí para permitir que se muestren
   }
 
   const saveInvoice = async () => {
     if (invoiceItems.length === 0) {
-      setError("Debe agregar al menos un producto a la factura")
+      showError("Debe agregar al menos un producto a la factura");
       return
     }
 
@@ -191,15 +205,20 @@ export default function ExpressInvoicesPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Error al guardar la factura')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Error al guardar la factura')
       }
 
-      setSuccess("Factura guardada exitosamente")
+      // Manejo de éxito
+      showSuccess("Factura guardada exitosamente")
       clearInvoice()
+      fetchProducts()
     } catch (err: any) {
-      setError('Error al guardar: ' + err.message)
+      console.error("Error al guardar factura:", err)
+      showError('Error al guardar: ' + err.message)
     } finally {
       setLoading(false)
+      console.log("Loading state set to false") // Debug
     }
   }
 
@@ -507,7 +526,7 @@ export default function ExpressInvoicesPage() {
                         fullWidth
                         size="small"
                         type="number"
-                        label="IVA %"
+                        label="ITBIS %"
                         value={taxPercent}
                         onChange={(e) => setTaxPercent(e.target.value)}
                         InputProps={{
@@ -557,24 +576,33 @@ export default function ExpressInvoicesPage() {
 
       {/* Snackbars para mensajes */}
       <Snackbar 
-        open={!!error} 
+        open={error} 
         autoHideDuration={6000} 
-        onClose={() => setError(null)}
+        onClose={() => setError(false)}
       >
-        <Alert onClose={() => setError(null)} severity="error" variant="filled">
-          {error}
+        <Alert onClose={() => setError(false)} severity="error" variant="filled">
+          {errorMessage}
         </Alert>
       </Snackbar>
 
       <Snackbar 
-        open={!!success} 
+        open={success} 
         autoHideDuration={4000} 
-        onClose={() => setSuccess(null)}
+        onClose={() => setSuccess(false)}
       >
-        <Alert onClose={() => setSuccess(null)} severity="success" variant="filled">
-          {success}
+        <Alert onClose={() => setSuccess(false)} severity="success" variant="filled">
+          {successMessage}
         </Alert>
       </Snackbar>
+
+      {/* Componente de carga */}
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
     </Container>
   )
 }

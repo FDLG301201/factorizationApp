@@ -211,12 +211,24 @@ exports.Prisma.Invoice_itemsScalarFieldEnum = {
   quantity: 'quantity',
   unit_price: 'unit_price',
   item_custom_price: 'item_custom_price',
-  subtotal: 'subtotal'
+  subtotal: 'subtotal',
+  item_discount_value: 'item_discount_value',
+  item_discount_amount: 'item_discount_amount',
+  subtotal_after_discount: 'subtotal_after_discount'
 };
 
 exports.Prisma.Invoice_statusesScalarFieldEnum = {
   id: 'id',
   name: 'name'
+};
+
+exports.Prisma.Invoice_paymentsScalarFieldEnum = {
+  id: 'id',
+  invoice_id: 'invoice_id',
+  amount: 'amount',
+  date: 'date',
+  method: 'method',
+  notes: 'notes'
 };
 
 exports.Prisma.SortOrder = {
@@ -245,7 +257,8 @@ exports.Prisma.ModelName = {
   roles: 'roles',
   users: 'users',
   invoice_items: 'invoice_items',
-  invoice_statuses: 'invoice_statuses'
+  invoice_statuses: 'invoice_statuses',
+  invoice_payments: 'invoice_payments'
 };
 
 /**

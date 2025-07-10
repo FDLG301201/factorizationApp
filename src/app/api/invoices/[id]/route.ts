@@ -45,7 +45,8 @@ export async function PUT(
   }
 }
 
-// Eliminar una factura
+
+//Eliminar una factura significa cambiar su estado a cancelada
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -53,12 +54,31 @@ export async function DELETE(
   const id = (await params).id;
 
   try {
-    await prisma.invoices.delete({
+    await prisma.invoices.update({
       where: { id: parseInt(id) },
+      data: { status_id: 2 },
     });
 
-    return NextResponse.json({ message: 'Invoice deleted' });
+    return NextResponse.json({ message: 'Invoice canceled' });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
+
+// Eliminar una factura
+// export async function DELETE(
+//   _req: NextRequest,
+//   { params }: { params: Promise<{ id: string }> }
+// ) {
+//   const id = (await params).id;
+
+//   try {
+//     await prisma.invoices.delete({
+//       where: { id: parseInt(id) },
+//     });
+
+//     return NextResponse.json({ message: 'Invoice deleted' });
+//   } catch (error: any) {
+//     return NextResponse.json({ error: error.message }, { status: 400 });
+//   }
+// }

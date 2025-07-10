@@ -1,25 +1,37 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-import { 
-  TextField, 
-  Autocomplete, 
-  IconButton, 
+import React, { useState, useEffect } from 'react'
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Collapse,
+  FormControl,
+  FormControlLabel,
   Grid,
-  Typography,
-  Box
+  IconButton,
+  InputAdornment,
+  Radio,
+  RadioGroup,
+  TextField,
+  Tooltip,
+  Typography
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import DiscountIcon from '@mui/icons-material/Discount'
+import { useTranslations } from 'next-intl'
 import { InvoiceItems } from '../../types/invoice-items'
 import { Inventory } from '../../types/inventory'
-import { useTranslations } from 'next-intl'
 
 interface InvoiceItemRowProps {
   item: InvoiceItems
   products: Inventory[]
-  onUpdate: (updatedItem: InvoiceItems) => void
+  onUpdate: (item: InvoiceItems) => void
   onDelete: () => void
   index: number
+  existingProductIds?: string[]
 }
 
 export default function InvoiceItemRow({ 
@@ -27,17 +39,28 @@ export default function InvoiceItemRow({
   products, 
   onUpdate, 
   onDelete, 
-  index 
+  index,
+  existingProductIds = []
 }: InvoiceItemRowProps) {
+  const g = useTranslations("Invoices")
+  const g2 = useTranslations("General")
+
+  
+  // Estados iniciales
   const [product, setProduct] = useState<Inventory | null>(null)
   const [quantity, setQuantity] = useState(item.quantity || 1)
   const [unitPrice, setUnitPrice] = useState(item.unit_price || 0)
   const [customPrice, setCustomPrice] = useState(item.item_custom_price)
   const [subtotal, setSubtotal] = useState(item.subtotal || 0)
   const [maxQuantity, setMaxQuantity] = useState(0)
-  const g = useTranslations("Invoices");
+  const [discountType, setDiscountType] = useState(item.item_discount_type || 'none')
+  const [discountValue, setDiscountValue] = useState(item.item_discount_value || 0)
+  const [discountAmount, setDiscountAmount] = useState(item.item_discount_amount || 0)
+  const [showDiscount, setShowDiscount] = useState(false)
+  
+  // No necesitamos contador de actualizaciones ya que usaremos dependencias directas
 
-  // Buscar el producto seleccionado cuando se carga el componente
+  // Cargar producto inicial
   useEffect(() => {
     if (item.inventory_id) {
       const selectedProduct = products.find(p => p.id === item.inventory_id)
@@ -45,7 +68,6 @@ export default function InvoiceItemRow({
         setProduct(selectedProduct)
         setMaxQuantity(selectedProduct.quantity)
         
-        // Si no hay precio personalizado, usar el precio del producto
         if (!item.item_custom_price) {
           setUnitPrice(selectedProduct.price)
         }
@@ -53,22 +75,44 @@ export default function InvoiceItemRow({
     }
   }, [item.inventory_id, products])
 
-  // Calcular subtotal cuando cambia la cantidad o el precio
+  // Calcular subtotal
   useEffect(() => {
     const price = customPrice !== undefined ? customPrice : unitPrice
-    const newSubtotal = quantity * price
-    setSubtotal(newSubtotal)
-    
-    // Notificar al componente padre sobre los cambios
-    onUpdate({
-      ...item,
-      quantity,
-      unit_price: unitPrice,
-      item_custom_price: customPrice,
-      subtotal: newSubtotal
-    })
+    setSubtotal(quantity * price)
   }, [quantity, unitPrice, customPrice])
 
+  // Calcular descuento
+  useEffect(() => {
+    if (discountType === 'percentage') {
+      setDiscountAmount((subtotal * discountValue) / 100)
+    } else if (discountType === 'amount') {
+      setDiscountAmount(discountValue)
+    } else {
+      setDiscountAmount(0)
+    }
+  }, [discountType, discountValue, subtotal])
+
+  // Enviar actualizaciones al componente padre cuando cambien los valores calculados
+  useEffect(() => {
+    // Solo actualizar si hay un producto seleccionado
+    if (product?.id) {
+      const finalSubtotal = subtotal - discountAmount
+      onUpdate({
+        ...item,
+        inventory_id: product.id,
+        quantity,
+        unit_price: unitPrice,
+        item_custom_price: customPrice,
+        subtotal,
+        item_discount_type: discountType !== 'none' ? discountType : undefined,
+        item_discount_value: discountValue,
+        item_discount_amount: discountAmount,
+        subtotal_after_discount: finalSubtotal
+      })
+    }
+  }, [product?.id, quantity, unitPrice, customPrice, subtotal, discountType, discountValue, discountAmount, item, onUpdate])
+
+  // Manejadores de eventos
   const handleProductChange = (event: React.SyntheticEvent, value: Inventory | null) => {
     if (value) {
       setProduct(value)
@@ -76,16 +120,6 @@ export default function InvoiceItemRow({
       setUnitPrice(value.price)
       setCustomPrice(undefined)
       
-      // Actualizar el item con el nuevo producto
-      onUpdate({
-        ...item,
-        inventory_id: value.id,
-        unit_price: value.price,
-        item_custom_price: undefined,
-        quantity: quantity > value.quantity ? value.quantity : quantity
-      })
-      
-      // Si la cantidad actual es mayor que el stock disponible, ajustar
       if (quantity > value.quantity) {
         setQuantity(value.quantity)
       }
@@ -101,62 +135,53 @@ export default function InvoiceItemRow({
     const newQuantity = parseInt(e.target.value)
     if (isNaN(newQuantity) || newQuantity < 1) {
       setQuantity(1)
-    } else if (product && newQuantity > maxQuantity) {
+    } else if (newQuantity > maxQuantity) {
       setQuantity(maxQuantity)
     } else {
       setQuantity(newQuantity)
-    }
-    
-    // Actualizar el item con la nueva cantidad
-    if (product) {
-      onUpdate({
-        ...item,
-        quantity: newQuantity > maxQuantity ? maxQuantity : (newQuantity < 1 ? 1 : newQuantity),
-        subtotal: (newQuantity > maxQuantity ? maxQuantity : (newQuantity < 1 ? 1 : newQuantity)) * (customPrice !== undefined ? customPrice : unitPrice)
-      })
     }
   }
 
   const handleCustomPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value)
-    let newCustomPrice: number | undefined
     
     if (isNaN(value) || value <= 0) {
       setCustomPrice(undefined)
-      newCustomPrice = undefined
     } else {
       setCustomPrice(value)
-      newCustomPrice = value
     }
-    
-    // Actualizar el item con el nuevo precio personalizado
-    if (product) {
-      const priceToUse = newCustomPrice !== undefined ? newCustomPrice : unitPrice
-      onUpdate({
-        ...item,
-        unit_price: unitPrice,
-        item_custom_price: newCustomPrice,
-        subtotal: quantity * priceToUse
-      })
+  }
+
+  const handleDiscountTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDiscountType(event.target.value as 'none' | 'percentage' | 'amount')
+  }
+
+  const handleDiscountValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value)
+    if (isNaN(value) || value < 0) {
+      setDiscountValue(0)
+    } else {
+      setDiscountValue(value)
     }
   }
 
   return (
     <Box sx={{ mb: 2, p: 1, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-      <Grid container spacing={2} sx={{ alignItems: "center" }}>
+      <Grid container spacing={2} sx={{ alignItems: "center", p: 1 }}>
         <Grid size={{xs:12, sm:4}}>
           <Autocomplete
             id={`product-select-${index}`}
-            options={products}
+            options={products.filter(p => !existingProductIds.includes(p.id) || (item.inventory_id && p.id === item.inventory_id))}
             getOptionLabel={(option) => `${option.name} (Stock: ${option.quantity})`}
             value={product}
             onChange={handleProductChange}
             renderInput={(params) => (
-              <TextField {...params} label="Producto" fullWidth required />
+              <TextField {...params} label={g2("product")} fullWidth required />
             )}
+            noOptionsText="No hay productos disponibles o ya están seleccionados"
           />
         </Grid>
-        <Grid size={{xs:6, sm:2}}>
+        <Grid size={{xs:6, sm:1}}>
           <TextField
             label="Cantidad"
             type="number"
@@ -192,18 +217,81 @@ export default function InvoiceItemRow({
             }}
           />
         </Grid>
-        <Grid size={{xs:5, sm:1}}>
-          <Typography variant="body2" fontWeight="bold">
-            {g("subtotal")}
-          </Typography>
-          <Typography variant="body2" fontWeight="bold">
-            ${subtotal.toFixed(2)}
-          </Typography>
+        <Grid size={{xs:5, sm:2}}>
+          <TextField
+            label={g("subtotal")}
+            value={`$${subtotal.toFixed(2)}`}
+            disabled
+            fullWidth
+          />
+          {/* {discountAmount > 0 && (
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+              Después de descuento: ${(subtotal - discountAmount).toFixed(2)}
+            </Typography>
+          )} */}
         </Grid>
         <Grid size={{xs:1, sm:1}}>
           <IconButton color="error" onClick={onDelete}>
             <DeleteIcon />
           </IconButton>
+        </Grid>
+        
+        <Grid size={{xs:12, sm:12}}>
+          <Button 
+            onClick={() => setShowDiscount(!showDiscount)} 
+            startIcon={showDiscount ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            endIcon={<DiscountIcon />}
+            size="small"
+            sx={{ mt: 1, color: discountAmount > 0 ? 'primary.main' : 'text.secondary' }}
+          >
+            {g("discount")} {discountAmount > 0 ? `(-$${discountAmount.toFixed(2)})` : ''}
+          </Button>
+          <Collapse in={showDiscount}>
+            <Box sx={{ mt: 1, mb: 1, p: 1.5, border: '1px dashed #e0e0e0', borderRadius: 1, bgcolor: 'background.paper' }}>
+              <Grid container spacing={2}>
+                <Grid size={{xs:12, sm:4}}>
+                  <FormControl component="fieldset" fullWidth>
+                    <RadioGroup
+                      aria-label="discount-type"
+                      name="discount-type"
+                      value={discountType}
+                      onChange={handleDiscountTypeChange}
+                      sx={{ display: 'flex', flexDirection: 'column' }}
+                    >
+                      <FormControlLabel value="none" control={<Radio size="small" />} label={g("no_discount")} />
+                      <FormControlLabel value="percentage" control={<Radio size="small" />} label={g("percentage_discount")} />
+                      <FormControlLabel value="amount" control={<Radio size="small" />} label={g("amount_discount")} />
+                    </RadioGroup>
+                  </FormControl>
+                </Grid>
+                {discountType !== 'none' && (
+                  <Grid size={{xs:12, sm:4}}>
+                    <TextField
+                      label={discountType === 'percentage' ? g("discount_percentage") : g("amount_discount")}
+                      type="number"
+                      value={discountValue}
+                      onChange={handleDiscountValueChange}
+                      fullWidth
+                      size="small"
+                      sx={{ mt: 5 }}
+                      InputProps={{
+                        startAdornment: <InputAdornment position="start">{discountType === 'percentage' ? '%' : '$'}</InputAdornment>,
+                      }}
+                    />
+                  </Grid>
+                )}
+                {discountAmount > 0 && (
+                  <Grid size={{xs:12, sm:4}}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: '100%' }}>
+                      <Typography variant="subtitle2" color="primary">
+                        {g("discount_amount")}: <strong>${discountAmount.toFixed(2)}</strong>
+                      </Typography>
+                    </Box>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          </Collapse>
         </Grid>
       </Grid>
     </Box>

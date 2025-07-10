@@ -50,21 +50,22 @@ model customers {
 }
 
 model invoices {
-  id               Int               @id @default(autoincrement())
+  id               Int                @id @default(autoincrement())
   customer_id      Int
-  amount           Decimal?          @db.Money
-  date             DateTime          @default(dbgenerated("CURRENT_DATE")) @db.Date
-  due_date         DateTime          @db.Date
+  amount           Decimal?           @db.Money
+  date             DateTime           @default(dbgenerated("CURRENT_DATE")) @db.Date
+  due_date         DateTime           @db.Date
   user_id          Int?
-  payment_date     DateTime?         @db.Date
-  status_id        Int?              @default(1)
-  subtotal         Decimal?          @db.Money
-  tax_amount       Decimal?          @db.Money
-  discount_amount  Decimal?          @db.Money
+  payment_date     DateTime?          @db.Date
+  status_id        Int?               @default(1)
+  subtotal         Decimal?           @db.Money
+  tax_amount       Decimal?           @db.Money
+  discount_amount  Decimal?           @db.Money
   invoice_items    invoice_items[]
-  invoice_statuses invoice_statuses? @relation(fields: [status_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_status")
-  users            users?            @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_invoices_user")
-  customers        customers         @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invoice_payments invoice_payments[]
+  invoice_statuses invoice_statuses?  @relation(fields: [status_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_status")
+  users            users?             @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_invoices_user")
+  customers        customers          @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model products {
@@ -118,19 +119,32 @@ model users {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model invoice_items {
-  id                Int      @id @default(autoincrement())
-  invoice_id        Int
-  product_id        Int
-  quantity          Int
-  unit_price        Decimal  @db.Money
-  item_custom_price Decimal? @db.Money
-  subtotal          Decimal  @default(dbgenerated("(quantity * COALESCE(item_custom_price, unit_price))")) @db.Money
-  invoices          invoices @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  products          products @relation(fields: [product_id], references: [id], onUpdate: NoAction)
+  id                      Int      @id @default(autoincrement())
+  invoice_id              Int
+  product_id              Int
+  quantity                Int
+  unit_price              Decimal  @db.Money
+  item_custom_price       Decimal? @db.Money
+  subtotal                Decimal  @default(dbgenerated("(quantity * COALESCE(item_custom_price, unit_price))")) @db.Money
+  item_discount_value     Decimal? @db.Decimal(10, 2)
+  item_discount_amount    Decimal? @db.Decimal(10, 2)
+  subtotal_after_discount Decimal? @db.Decimal(10, 2)
+  invoices                invoices @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  products                products @relation(fields: [product_id], references: [id], onUpdate: NoAction)
 }
 
 model invoice_statuses {
   id       Int        @id @default(autoincrement())
   name     String     @unique
   invoices invoices[]
+}
+
+model invoice_payments {
+  id         Int      @id @default(autoincrement())
+  invoice_id Int
+  amount     Decimal  @db.Money
+  date       DateTime @default(now()) @db.Timestamp(6)
+  method     String?
+  notes      String?
+  invoices   invoices @relation(fields: [invoice_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }

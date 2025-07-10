@@ -4,8 +4,11 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   IconButton,
   InputAdornment,
+  Menu,
+  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -20,19 +23,25 @@ import {
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Search as SearchIcon, FilterList as FilterIcon, } from "@mui/icons-material"
 import { Invoice } from "@/app/types/invoice"
 import { useLocale, useTranslations } from "next-intl"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import PriceCheckIcon from '@mui/icons-material/PriceCheck';
+import { InvoiceStatus } from "@/app/constants/invoice-statuses.enum"
 
 interface InvoiceListProps {
   invoices: Invoice[]
   onCreateClick: () => void
   onEditClick: (invoice: Invoice) => void
   onDeleteClick: (id: string) => void
+  onPayClick: (invoice: Invoice) => void
+  onConsultClick: (invoice: Invoice) => void
   showActions?: boolean
   showCreateButton?: boolean
   showPagination?: boolean
 }
 
-export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick, showActions = true, showCreateButton = true, showPagination = true }: InvoiceListProps) {
+export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick, onPayClick, onConsultClick, showActions = true, showCreateButton = true, showPagination = true }: InvoiceListProps) {
   const locale = useLocale();
   const t = useTranslations("Invoices");
   const g = useTranslations("General");
@@ -40,6 +49,18 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
   const [searchTerm, setSearchTerm] = useState("")
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const open = Boolean(anchorEl);
+  
+  const handleClick = (event: React.MouseEvent<HTMLElement>, invoice: Invoice) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedInvoice(invoice);
+  };
+  
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
 
   const getStatusColor = (status: string) => {
@@ -101,8 +122,9 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
   const filteredInvoices = invoices.filter(
     (invoice) =>
       invoice.customers?.identifier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.invoice_statuses?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.customers?.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+      s(invoice.invoice_statuses?.name || "")?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.customers?.identifier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.id?.toString().toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -173,7 +195,7 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
                     size="small"
                   />
                 </TableCell>
-                {showActions && (
+                {/* {showActions && (
                   <TableCell align="right">
                     <IconButton size="small" onClick={() => onEditClick(invoice)}>
                       <EditIcon fontSize="small" />
@@ -181,6 +203,78 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
                     <IconButton size="small" onClick={() => onDeleteClick(invoice.id)}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
+                  </TableCell>
+                )} */}
+
+                {showActions && (
+                  <TableCell align="right">
+                    <IconButton
+                      aria-label="more"
+                      id={`menu-button-${invoice.id}`}
+                      aria-controls={open ? `menu-${invoice.id}` : undefined}
+                      aria-expanded={open ? 'true' : undefined}
+                      aria-haspopup="true"
+                      onClick={(event) => handleClick(event, invoice)}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                    <Menu
+                      id="long-menu"
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                      slotProps={{
+                        paper: {
+                          style: {
+                            width: '15ch',
+                          },
+                        },
+                        list: {
+                          'aria-labelledby': 'long-button',
+                        },
+                      }}
+                    >
+                      <MenuItem onClick={() => {
+                        handleClose();
+                        selectedInvoice && onConsultClick(selectedInvoice);
+                      }} disableRipple>
+                        <VisibilityIcon fontSize="small" sx={{ mr: 2 }} />
+                        {g("consult")}
+                      </MenuItem>
+
+                      {/* <Divider sx={{ my: 0.5 }} /> */}
+
+
+                      <MenuItem onClick={() => {
+                        handleClose();
+                        selectedInvoice && onEditClick(selectedInvoice);
+                      }} disableRipple>
+                        <EditIcon fontSize="small" sx={{ mr: 2 }} />
+                        {g("edit")}
+                      </MenuItem>
+
+                      <Divider sx={{ my: 0.5 }} />
+
+                      <MenuItem onClick={() => {
+                        handleClose();
+                        selectedInvoice && onDeleteClick(selectedInvoice.id);
+                      }} disableRipple>
+                        <DeleteIcon fontSize="small" sx={{ mr: 2 }} />
+                        {g("delete")}
+                      </MenuItem>
+
+                      {/* <Divider sx={{ my: 0.5 }} /> */}
+                      
+                      {selectedInvoice && Number(selectedInvoice.invoice_statuses?.id) !== InvoiceStatus.Paid && (
+                        <MenuItem onClick={() => {
+                          handleClose();
+                          selectedInvoice && onPayClick(selectedInvoice);
+                        }} disableRipple>
+                          <PriceCheckIcon fontSize="small" sx={{ mr: 2 }} />
+                          {g("pay")}
+                        </MenuItem>
+                      )}
+                    </Menu>
                   </TableCell>
                 )}
               </TableRow>
@@ -190,16 +284,16 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
 
         {showPagination && (
           <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={filteredInvoices.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage={g("rows-per-page")}
-          labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${g("of")} ${count}`}
-        />
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredInvoices.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage={g("rows-per-page")}
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${g("of")} ${count}`}
+          />
         )}
       </TableContainer>
     </>

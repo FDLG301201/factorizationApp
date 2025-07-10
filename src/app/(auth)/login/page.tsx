@@ -66,7 +66,7 @@ export default function LoginPage() {
       <Box sx={{ position: "absolute", top: 4, right: 4 }}>
         <ThemeToggle />
       </Box>
-      <Card sx={{ width: "100%", height: "100%", maxWidth: 500, maxHeight: 500, boxShadow: 5, borderRadius: 4 }}>
+      <Card sx={{ width: "100%", height: "100%", maxWidth: 500, maxHeight: 550, boxShadow: 5, borderRadius: 4 }}>
 
         <Box sx={{ textAlign: "center", marginTop: "40px" }}>
           <motion.div
@@ -154,13 +154,16 @@ export default function LoginPage() {
               Iniciar Sesión
             </Button>
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2, mt: 2 }}>
-                {error}
-              </Alert>
-            )}
+            {/* Espacio reservado para el mensaje de error */}
+            <Box sx={{ height: 60, mt: 2, display: 'flex', alignItems: 'center' }}>
+              {error && (
+                <Alert severity="error" sx={{ width: '100%' }}>
+                  {error}
+                </Alert>
+              )}
+            </Box>
 
-            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+            <Typography variant="body2" align="center" sx={{ mt: 1 }}>
               ¿No tienes una cuenta?{" "}
               <Link href="/register" passHref>
                 <Button variant="text" color="primary" size="small">

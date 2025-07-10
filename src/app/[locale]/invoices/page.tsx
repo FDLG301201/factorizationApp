@@ -8,11 +8,14 @@ import InvoiceList from "@/app/components/invoices/invoice-list"
 import { Customer } from "@/app/types/customer"
 import { Invoice } from "@/app/types/invoice"
 import { useTranslations } from "next-intl"
+import PaymentModal from "@/app/components/payment-modal"
 
 export default function InvoicesPage() {
 
   const t = useTranslations("Invoices");
   const g = useTranslations("General");
+  const p = useTranslations("Payments");
+
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false)
@@ -22,6 +25,7 @@ export default function InvoicesPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     fetchInvoices()
@@ -131,6 +135,16 @@ export default function InvoicesPage() {
     setShowDeleteModal(true);
   }
 
+  const handlePayClick = (invoice: Invoice) => {
+    setSelectedInvoiceId(invoice.id);
+    setShowPaymentModal(true);
+  }
+
+  const handleConsultClick = (invoice: Invoice) => {
+    // Esta función se implementará más adelante para consultar detalles de la factura
+    console.log("Consultar factura:", invoice);
+  }
+
   return (
     <Container maxWidth={false} sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
@@ -150,6 +164,8 @@ export default function InvoicesPage() {
           onCreateClick={handleAddClick}
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteClick}
+          onPayClick={handlePayClick}
+          onConsultClick={handleConsultClick}
         />
       </Paper>
 
@@ -220,6 +236,19 @@ export default function InvoicesPage() {
         </DialogActions>
       </Dialog>
 
+      {/* Modal de pago */}
+      {showPaymentModal && selectedInvoiceId && (
+        <PaymentModal 
+          open={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          invoiceId={selectedInvoiceId}
+          onPaymentSuccess={() => {
+            setShowPaymentModal(false);
+            setSuccessMessage(p("payment-successful"));
+            fetchInvoices(); // Actualizar la lista de facturas después de un pago exitoso
+          }}
+        />
+      )}
 
     </Container>
   )

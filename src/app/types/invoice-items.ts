@@ -6,5 +6,9 @@ export interface InvoiceItems {
     unit_price: number
     item_custom_price?: number
     subtotal: number
+    // Campos para descuento individual
+    item_discount_type?: 'none' | 'percentage' | 'amount'
+    item_discount_value?: number
+    item_discount_amount?: number
+    subtotal_after_discount?: number
 }
-    

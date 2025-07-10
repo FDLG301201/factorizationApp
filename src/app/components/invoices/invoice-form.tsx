@@ -30,6 +30,7 @@ import {
 } from "@mui/material"
 import AddIcon from '@mui/icons-material/Add'
 import CalculateIcon from '@mui/icons-material/Calculate'
+import DiscountIcon from '@mui/icons-material/LocalOffer';
 import { Invoice } from "../../types/invoice"
 import { Customer } from "../../types/customer"
 import { Inventory } from "../../types/inventory"
@@ -58,12 +59,12 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
 
   // Estado para los elementos de factura
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItems[]>([]);
-  
+
   // Estado para descuentos e impuestos
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
   const [discountValue, setDiscountValue] = useState<string>('');
   const [taxPercent, setTaxPercent] = useState<string>('');
-  
+
   // Totales calculados
   const [subtotal, setSubtotal] = useState<number>(0);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
@@ -86,9 +87,6 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
         try {
           const response = await fetch('/api/products');
           const data = await response.json();
-
-          console.log('data de productos', data);
-
           setAllProducts(data);
         } catch (error) {
           console.error('Error al cargar productos:', error);
@@ -114,75 +112,79 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
         due_date: parsedDueDate,
         status_id: invoice.status_id || "",
       });
-      
+
       // Cargar elementos de factura si existen
       if (invoice.invoice_items && invoice.invoice_items.length > 0) {
         setInvoiceItems(invoice.invoice_items);
       }
-      
+
       // Cargar descuentos e impuestos si existen
       if (invoice.discount_type) {
         setDiscountType(invoice.discount_type);
       }
-      
+
       if (invoice.discount_value !== undefined) {
         setDiscountValue(invoice.discount_value.toString());
       }
-      
+
       if (invoice.tax_percent !== undefined) {
         setTaxPercent(invoice.tax_percent.toString());
       }
-      
+
       if (invoice.subtotal !== undefined) {
         setSubtotal(invoice.subtotal);
       }
-      
+
       if (invoice.tax_amount !== undefined) {
         setTaxAmount(invoice.tax_amount);
       }
-      
+
       if (invoice.discount_amount !== undefined) {
         setDiscountAmount(invoice.discount_amount);
       }
     }
   }, [invoice, customers]);
 
+
+  //Buscar los estados de la facturas
   const fetchInvoiceStatuses = async () => {
     const response = await fetch("/api/invoice-statuses");
     const data = await response.json();
     return data;
   };
 
+  //Establecer el estado pendiente por defecto a la hora de crear una nueva factura
   useEffect(() => {
     setLoading(true);
     try {
-        fetchInvoiceStatuses().then((data) => {
-          setInvoiceStatuses(data);
-          
-          // Si estamos creando una nueva factura, establecer el estado por defecto como "pendiente"
-          if (!invoice) {
-            const pendingStatus = data.find((status: InvoiceStatus) => 
-              status.name.toLowerCase() === "pending" || 
-              status.name.toLowerCase() === "pendiente"
-            );
-            
-            if (pendingStatus) {
-              setFormData(prev => ({
-                ...prev,
-                status_id: pendingStatus.id
-              }));
-            }
+      fetchInvoiceStatuses().then((data) => {
+        setInvoiceStatuses(data);
+
+        // Si estamos creando una nueva factura, establecer el estado por defecto como "pendiente"
+        if (!invoice) {
+          const pendingStatus = data.find((status: InvoiceStatus) =>
+            status.name.toLowerCase() === "pending" ||
+            status.name.toLowerCase() === "pendiente"
+          );
+
+          if (pendingStatus) {
+            setFormData(prev => ({
+              ...prev,
+              status_id: pendingStatus.id
+            }));
           }
-          
-          setLoading(false);
-        });
-      } catch (error) {
-        console.log(error);
+        }
+
         setLoading(false);
-      }
+      });
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
   }, [invoice]);
 
-  const handleChange = (e:any) => {
+  //Manejador de cambios
+  const handleChange = (e: any) => {
     const { name, value } = e.target
     setFormData({
       ...formData,
@@ -190,6 +192,7 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
     })
   }
 
+  //Manejador de cambio de cliente
   const handleCustomerChange = (event: React.SyntheticEvent, value: Customer | null) => {
     if (value) {
       setFormData({
@@ -208,40 +211,47 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
 
   // Calcular totales cuando cambian los elementos, descuentos o impuestos
   useEffect(() => {
-    // Calcular subtotal sumando todos los elementos
+    // Calcular subtotal sumando todos los elementos (sin descuentos individuales)
     const newSubtotal = invoiceItems.reduce((sum, item) => sum + item.subtotal, 0);
     setSubtotal(newSubtotal);
-    
-    // Calcular descuento
+
+    // Calcular subtotal después de descuentos individuales
+    const subtotalAfterItemDiscounts = invoiceItems.reduce((sum, item) => {
+      return sum + (item.subtotal_after_discount !== undefined ? item.subtotal_after_discount : item.subtotal);
+    }, 0);
+
+    // Calcular descuento general sobre el subtotal después de descuentos individuales
     let newDiscountAmount = 0;
     if (discountValue && parseFloat(discountValue) > 0) {
       if (discountType === 'percentage') {
-        newDiscountAmount = newSubtotal * (parseFloat(discountValue) / 100);
+        // Aplicar el porcentaje al subtotal después de descuentos individuales
+        newDiscountAmount = Math.round(subtotalAfterItemDiscounts * (parseFloat(discountValue) / 100) * 100) / 100;
       } else {
+        // Aplicar un monto fijo como descuento general
         newDiscountAmount = parseFloat(discountValue);
       }
     }
     setDiscountAmount(newDiscountAmount);
-    
-    // Calcular impuesto sobre el monto después del descuento
+
+    // Calcular impuesto sobre el monto después de todos los descuentos
     let newTaxAmount = 0;
     if (taxPercent && parseFloat(taxPercent) > 0) {
-      newTaxAmount = (newSubtotal - newDiscountAmount) * (parseFloat(taxPercent) / 100);
+      newTaxAmount = Math.round((subtotalAfterItemDiscounts - newDiscountAmount) * (parseFloat(taxPercent) / 100) * 100) / 100;
     }
     setTaxAmount(newTaxAmount);
-    
+
     // Calcular total
-    const newTotal = newSubtotal - newDiscountAmount + newTaxAmount;
+    const newTotal = Math.round((subtotalAfterItemDiscounts - newDiscountAmount + newTaxAmount) * 100) / 100;
     setTotal(newTotal);
-    
+
     // Actualizar el monto en el formulario para mantener compatibilidad
     setFormData(prev => ({
       ...prev,
       amount: newTotal.toString()
     }));
-    
+
   }, [invoiceItems, discountType, discountValue, taxPercent]);
-  
+
   // Añadir un nuevo elemento de factura
   const handleAddInvoiceItem = () => {
     const newItem: InvoiceItems = {
@@ -252,50 +262,67 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
       unit_price: 0,
       subtotal: 0
     };
-    
+
     setInvoiceItems([...invoiceItems, newItem]);
   };
-  
+
   // Actualizar un elemento de factura
   const handleUpdateInvoiceItem = (index: number, updatedItem: InvoiceItems) => {
     const newItems = [...invoiceItems];
     newItems[index] = updatedItem;
     setInvoiceItems(newItems);
   };
-  
+
   // Eliminar un elemento de factura
   const handleDeleteInvoiceItem = (index: number) => {
     const newItems = [...invoiceItems];
     newItems.splice(index, 1);
     setInvoiceItems(newItems);
   };
-  
-  // Manejar cambio en el tipo de descuento
-  const handleDiscountTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDiscountType(e.target.value as 'percentage' | 'fixed');
-  };
-  
-  // Manejar cambio en el valor del descuento
-  const handleDiscountValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDiscountValue(e.target.value);
-  };
-  
-  // Manejar cambio en el porcentaje de impuesto
-  const handleTaxPercentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTaxPercent(e.target.value);
+
+  // Manejar cambio de tipo de descuento general
+  const handleDiscountTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDiscountType(event.target.value as 'percentage' | 'fixed');
+    // Resetear el valor cuando cambia el tipo
+    setDiscountValue('');
   };
 
+  // Manejar cambio de valor de descuento general
+  const handleDiscountValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    // Validar que sea un número válido
+    if (value === '' || (!isNaN(parseFloat(value)) && parseFloat(value) >= 0)) {
+      setDiscountValue(value);
+    }
+  };
+
+  // Manejar cambio en el porcentaje de impuesto
+  const handleTaxPercentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    // Validar que sea un número válido
+    if (value === '' || (!isNaN(parseFloat(value)) && parseFloat(value) >= 0)) {
+      setTaxPercent(value);
+    }
+  };
+
+  //Evento Submit del formulario
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Parse dates from form data
     const parsedDate = new Date(formData.date);
     const parsedDueDate = new Date(formData.due_date);
+    
+    // Create properly formatted ISO strings without spaces
+    const dateString = parsedDate.toISOString().replace(/ /g, '');
+    const dueDateString = parsedDueDate.toISOString().replace(/ /g, '');
 
     onSubmit({
       customer_id: formData.customer_id,
       amount: total,
-      date: parsedDate,
-      due_date: parsedDueDate,
+      // Use formatted strings instead of Date objects
+      date: dateString as any, // Using type assertion to bypass type checking
+      due_date: dueDateString as any, // Using type assertion to bypass type checking
       status_id: formData.status_id,
       // invoice_statuses: undefined,
       // Nuevos campos
@@ -310,10 +337,19 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
   };
 
   return (
-    <Dialog open={true} onClose={onCancel} maxWidth="lg" fullWidth>
+    <Dialog open={true} onClose={(event, reason) => {
+      if (reason === "backdropClick" || reason === "escapeKeyDown") {
+        return;
+      }
+      onCancel(); // solo se cierra manualmente
+    }} maxWidth="xl" fullWidth PaperProps={{ sx: { maxHeight: '90vh' } }}>
       <form onSubmit={handleSubmit}>
-        <DialogTitle>{invoice ? t("edit-invoice") : t("create-invoice")}</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h5" component="div">
+            {invoice ? t("edit-invoice") : t("create-invoice")}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ pb: 1 }}>
           <Grid container spacing={3}>
             {/* Información básica de la factura */}
             <Grid size={{ xs: 12 }}>
@@ -420,6 +456,10 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
                         index={index}
                         item={item}
                         products={allProducts}
+                        existingProductIds={invoiceItems
+                          .filter((_, idx) => idx !== index)
+                          .map(item => item.inventory_id)
+                          .filter(id => id !== '')}
                         onUpdate={(updatedItem) => handleUpdateInvoiceItem(index, updatedItem)}
                         onDelete={() => handleDeleteInvoiceItem(index)}
                       />
@@ -435,20 +475,49 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
 
             {/* Cálculos y totales */}
             <Grid size={{ xs: 12 }}>
-              <Paper sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>{t("calculations")}</Typography>
-                
+              <Paper sx={{ p: 3, bgcolor: 'background.paper' }}>
+                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                  <CalculateIcon sx={{ mr: 1 }} /> {t("calculations")}
+                </Typography>
+
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12, sm: 12 }}>
                     {/* Subtotal */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography>{t("subtotal")}:</Typography>
-                      <Typography>${subtotal.toFixed(2)}</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, pb: 1, borderBottom: '1px dashed #e0e0e0' }}>
+                      <Typography variant="subtitle1">{t("subtotal")}:</Typography>
+                      <Typography variant="subtitle1" fontWeight="medium">${subtotal.toFixed(2)}</Typography>
                     </Box>
-                    
-                    {/* Descuento */}
+
+                    {/* Descuentos individuales aplicados */}
+                    {invoiceItems.some(item => item.item_discount_amount && item.item_discount_amount > 0) && (
+                      <Box sx={{ mb: 2, p: 1.5, bgcolor: 'background.default', borderRadius: 1 }}>
+                        <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
+                          <DiscountIcon fontSize="small" sx={{ mr: 1 }} /> Descuentos por Ítem:
+                        </Typography>
+                        {invoiceItems.map((item, index) => (
+                          item.item_discount_amount && item.item_discount_amount > 0 && (
+                            <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, ml: 2 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                {allProducts.find(p => p.id === item.inventory_id)?.name || `Ítem ${index + 1}`} ({item.item_discount_type === 'percentage' ? `${item.item_discount_value}%` : `$${item.item_discount_value}`}):
+                              </Typography>
+                              <Typography variant="body2" color="error.main" fontWeight="medium">
+                                -${Number(item.item_discount_amount).toFixed(2)}
+                              </Typography>
+                            </Box>
+                          )
+                        ))}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, mt: 1, pt: 1, borderTop: '1px dashed #e0e0e0' }}>
+                          <Typography variant="subtitle2">Subtotal después de descuentos por ítem:</Typography>
+                          <Typography variant="subtitle2" fontWeight="medium">
+                            ${invoiceItems.reduce((sum, item) => sum + (item.subtotal_after_discount !== undefined ? item.subtotal_after_discount : item.subtotal), 0).toFixed(2)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+
+                    {/* Descuento general */}
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2" sx={{ mb: 1 }}>{t("discount")}:</Typography>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>{t("discount")} General:</Typography>
                       <Grid container spacing={2} alignItems="center">
                         <Grid size={{ xs: 12, sm: 4 }}>
                           <RadioGroup
@@ -456,15 +525,15 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
                             value={discountType}
                             onChange={handleDiscountTypeChange}
                           >
-                            <FormControlLabel 
-                              value="percentage" 
-                              control={<Radio size="small" />} 
-                              label={t("percentage")} 
+                            <FormControlLabel
+                              value="percentage"
+                              control={<Radio size="small" />}
+                              label={t("percentage")}
                             />
-                            <FormControlLabel 
-                              value="fixed" 
-                              control={<Radio size="small" />} 
-                              label={t("fixed-amount")} 
+                            <FormControlLabel
+                              value="fixed"
+                              control={<Radio size="small" />}
+                              label={t("fixed-amount")}
                             />
                           </RadioGroup>
                         </Grid>
@@ -472,12 +541,12 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
                           <TextField
                             fullWidth
                             type="number"
-                            label={discountType === 'percentage' ? t("discount-percent") : t("discount-amount")}
+                            label={discountType === 'percentage' ? t("discount-percent") : t("amount_discount")}
                             value={discountValue}
                             onChange={handleDiscountValueChange}
                             InputProps={{
-                              endAdornment: discountType === 'percentage' ? 
-                                <InputAdornment position="end">%</InputAdornment> : 
+                              endAdornment: discountType === 'percentage' ?
+                                <InputAdornment position="end">%</InputAdornment> :
                                 <InputAdornment position="start">$</InputAdornment>,
                             }}
                           />
@@ -489,7 +558,7 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
                         </Grid>
                       </Grid>
                     </Box>
-                    
+
                     {/* Impuesto */}
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" sx={{ mb: 1 }}>{t("tax")}:</Typography>
@@ -513,9 +582,9 @@ export default function InvoiceForm({ onSubmit, onCancel, customers, products = 
                         </Grid>
                       </Grid>
                     </Box>
-                    
+
                     <Divider sx={{ my: 2 }} />
-                    
+
                     {/* Total */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="h6">{t("total")}:</Typography>

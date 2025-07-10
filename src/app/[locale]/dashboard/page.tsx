@@ -91,6 +91,8 @@ export default function Dashboard() {
                             onCreateClick={() => setShowInvoiceForm(true)}
                             onEditClick={() => { }}
                             onDeleteClick={() => { }}
+                            onPayClick={() => { }}
+                            onConsultClick={() => { }}
                             showActions={false}
                             showCreateButton={false}
                             showPagination={false}
