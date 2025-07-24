@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.10.1
- * Query Engine version: 9b628578b3b7cae625e8c927178f15a170e74a9c
+ * Prisma Client JS version: 6.11.1
+ * Query Engine version: f40f79ec31188888a2e33acda0ecc8fd10a853a9
  */
 Prisma.prismaVersion = {
-  client: "6.10.1",
-  engine: "9b628578b3b7cae625e8c927178f15a170e74a9c"
+  client: "6.11.1",
+  engine: "f40f79ec31188888a2e33acda0ecc8fd10a853a9"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -120,6 +120,19 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.RolesScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+};
+
+exports.Prisma.UsersScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  password: 'password',
+  email: 'email',
+  role_id: 'role_id'
+};
+
 exports.Prisma.CategoriesScalarFieldEnum = {
   id: 'id',
   name: 'name'
@@ -152,6 +165,33 @@ exports.Prisma.CustomersScalarFieldEnum = {
   zip_code: 'zip_code',
   country: 'country',
   user_id: 'user_id'
+};
+
+exports.Prisma.Invoice_itemsScalarFieldEnum = {
+  id: 'id',
+  invoice_id: 'invoice_id',
+  product_id: 'product_id',
+  quantity: 'quantity',
+  unit_price: 'unit_price',
+  item_custom_price: 'item_custom_price',
+  subtotal: 'subtotal',
+  item_discount_value: 'item_discount_value',
+  item_discount_amount: 'item_discount_amount',
+  subtotal_after_discount: 'subtotal_after_discount'
+};
+
+exports.Prisma.Invoice_paymentsScalarFieldEnum = {
+  id: 'id',
+  invoice_id: 'invoice_id',
+  amount: 'amount',
+  date: 'date',
+  method: 'method',
+  notes: 'notes'
+};
+
+exports.Prisma.Invoice_statusesScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
 };
 
 exports.Prisma.InvoicesScalarFieldEnum = {
@@ -191,46 +231,6 @@ exports.Prisma.ProvidersScalarFieldEnum = {
   user_id: 'user_id'
 };
 
-exports.Prisma.RolesScalarFieldEnum = {
-  id: 'id',
-  name: 'name'
-};
-
-exports.Prisma.UsersScalarFieldEnum = {
-  id: 'id',
-  username: 'username',
-  password: 'password',
-  email: 'email',
-  role_id: 'role_id'
-};
-
-exports.Prisma.Invoice_itemsScalarFieldEnum = {
-  id: 'id',
-  invoice_id: 'invoice_id',
-  product_id: 'product_id',
-  quantity: 'quantity',
-  unit_price: 'unit_price',
-  item_custom_price: 'item_custom_price',
-  subtotal: 'subtotal',
-  item_discount_value: 'item_discount_value',
-  item_discount_amount: 'item_discount_amount',
-  subtotal_after_discount: 'subtotal_after_discount'
-};
-
-exports.Prisma.Invoice_statusesScalarFieldEnum = {
-  id: 'id',
-  name: 'name'
-};
-
-exports.Prisma.Invoice_paymentsScalarFieldEnum = {
-  id: 'id',
-  invoice_id: 'invoice_id',
-  amount: 'amount',
-  date: 'date',
-  method: 'method',
-  notes: 'notes'
-};
-
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -248,17 +248,17 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
+  roles: 'roles',
+  users: 'users',
   categories: 'categories',
   companies: 'companies',
   customers: 'customers',
+  invoice_items: 'invoice_items',
+  invoice_payments: 'invoice_payments',
+  invoice_statuses: 'invoice_statuses',
   invoices: 'invoices',
   products: 'products',
-  providers: 'providers',
-  roles: 'roles',
-  users: 'users',
-  invoice_items: 'invoice_items',
-  invoice_statuses: 'invoice_statuses',
-  invoice_payments: 'invoice_payments'
+  providers: 'providers'
 };
 
 /**

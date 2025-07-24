@@ -8,6 +8,7 @@ import InvoiceList from "@/app/components/invoices/invoice-list"
 import { Customer } from "@/app/types/customer"
 import { Invoice } from "@/app/types/invoice"
 import { useTranslations } from "next-intl"
+import { useRouter } from "next/navigation"
 import PaymentModal from "@/app/components/payment-modal"
 
 export default function InvoicesPage() {
@@ -15,6 +16,7 @@ export default function InvoicesPage() {
   const t = useTranslations("Invoices");
   const g = useTranslations("General");
   const p = useTranslations("Payments");
+  const router = useRouter();
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -141,8 +143,8 @@ export default function InvoicesPage() {
   }
 
   const handleConsultClick = (invoice: Invoice) => {
-    // Esta función se implementará más adelante para consultar detalles de la factura
-    console.log("Consultar factura:", invoice);
+    // Redirigir a la página de detalle de la factura
+    router.push(`/invoices/${invoice.id}`);
   }
 
   return (
