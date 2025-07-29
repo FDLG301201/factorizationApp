@@ -6,7 +6,9 @@ import {
   Dashboard as DashboardIcon,
   Receipt as ReceiptIcon,
   People as PeopleIcon,
-  Inventory as InventoryIcon
+  Inventory as InventoryIcon,
+  Business as BusinessIcon,
+  Category as CategoryIcon
 } from "@mui/icons-material";
 import Link from "next/link";
 
@@ -43,6 +45,18 @@ export default function SidebarMenu({ locale }: { locale: string }) {
         <ListItemButton component={Link} href={`/${locale}/inventory`}>
           <ListItemIcon><InventoryIcon /></ListItemIcon>
           <ListItemText primary={t("inventory")} />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
+        <ListItemButton component={Link} href={`/${locale}/companies`}>
+          <ListItemIcon><BusinessIcon /></ListItemIcon>
+          <ListItemText primary={t("companies")} />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
+        <ListItemButton component={Link} href={`/${locale}/categories`}>
+          <ListItemIcon><CategoryIcon /></ListItemIcon>
+          <ListItemText primary={t("categories")} />
         </ListItemButton>
       </ListItem>
     </List>

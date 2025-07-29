@@ -7,7 +7,7 @@ import {
   Warning as OverdueIcon,
   Receipt as InvoiceIcon,
 } from "@mui/icons-material"
-import { Invoice } from "../types/invoice"
+import { Invoice } from "../../types/invoice"
 import { useTranslations } from "next-intl"
 import { useEffect } from "react"
 

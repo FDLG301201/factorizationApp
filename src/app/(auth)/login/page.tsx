@@ -7,7 +7,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LockOutlineIcon from '@mui/icons-material/LockOutline';
 import MailIcon from '@mui/icons-material/Mail';
-import ThemeToggle from "@/app/components/theme-toggle"
+import ThemeToggle from "@/app/components/shared/theme-toggle"
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect } from "react";

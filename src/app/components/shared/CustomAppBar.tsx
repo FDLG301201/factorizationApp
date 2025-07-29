@@ -1,7 +1,7 @@
 "use client"
 
 import { AppBar, Toolbar, Typography } from "@mui/material";
-import UserMenu from "./user-menu";
+import UserMenu from "../shared/user-menu";
 
 export default function CustomAppBar() {
     return (

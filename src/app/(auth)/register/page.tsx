@@ -2,7 +2,7 @@
 
 import { Alert, Button, Card, CardContent, CardHeader, CardMedia, TextField, Typography, useTheme } from "@mui/material"
 import Box from "@mui/material/Box"
-import ThemeToggle from "@/app/components/theme-toggle";
+import ThemeToggle from "@/app/components/shared/theme-toggle";
 import { useState } from "react";
 import { useRouter } from "next/navigation"
 

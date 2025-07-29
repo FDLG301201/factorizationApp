@@ -1,7 +1,7 @@
 "use client"
 
 import { List, ListItem, ListItemText, Typography } from "@mui/material"
-import { Invoice } from "../types/invoice"
+import { Invoice } from "@/app/types/invoice"
 import { useLocale, useTranslations } from "next-intl"
 
 interface RecentPaymentsProps {

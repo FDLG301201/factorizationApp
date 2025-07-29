@@ -91,6 +91,20 @@
     "unit-price": "Unit Price",
     "update-invoice": "Update Invoice"
   },
+  "Categories": {
+    "add-category": "Add Category",
+    "category-name": "Category Name",
+    "create-category": "Create Category",
+    "delete-category": "Delete Category",
+    "edit-category": "Edit Category",
+    "manage-categories": "Manage Categories",
+    "no-categories-found": "No categories found",
+    "category-created": "Category created successfully",
+    "category-updated": "Category updated successfully",
+    "category-deleted": "Category deleted successfully",
+    "sure-delete-category": "Are you sure you want to delete this category?",
+    "search-categories": "Search categories..."
+  },
   "General": {
     "actions": "Actions",
     "add": "Add",
@@ -101,10 +115,12 @@
     "basic-information": "Basic Information",
     "cancel": "Cancel",
     "category": "Category",
+    "categories": "Categories",
     "city": "City",
     "color": "Color",
     "consult": "Consult",
     "company": "Company",
+    "companies": "Companies",
     "confirmation": "Confirmation",
     "country": "Country",
     "customer": "Customer",
@@ -174,5 +190,20 @@
     "overdue": "Overdue",
     "paid": "Paid",
     "pending": "Pending"
+  },
+  "Companies": {
+    "companies": "Companies",
+    "add-company": "Add Company",
+    "add-new-company": "Add New Company",
+    "all-company": "All Companies",
+    "company-created": "Company created successfully",
+    "company-deleted": "Company deleted successfully",
+    "company-updated": "Company updated successfully",
+    "delete-company": "Delete Company",
+    "edit-company": "Edit Company",
+    "company-not-found": "Company not found",
+    "search-companies": "Search companies...",
+    "sure-delete-company": "Are you sure you want to delete this company?",
+    "update-company": "Update Company"
   }
 }

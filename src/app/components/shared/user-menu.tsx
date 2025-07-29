@@ -2,13 +2,11 @@
 
 import { IconButton, Avatar, Menu, MenuItem, Button } from "@mui/material";
 import { useRef, useState } from "react";
-import ThemeToggle from "../components/theme-toggle";
-import LanguageSwitcher from "../components/language-switcher";
+import ThemeToggle from "./theme-toggle";
+import LanguageSwitcher from "./language-switcher";
 import { signOut, useSession } from "next-auth/react";
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useTranslations } from "next-intl";
-import router from "next/router";
-import { redirect } from "next/navigation";
 
 export default function UserMenu() {
   

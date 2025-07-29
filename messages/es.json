@@ -91,6 +91,20 @@
     "unit-price": "Precio Unitario",
     "update-invoice": "Actualizar Factura"
   },
+  "Categories": {
+    "add-category": "Agregar Categoría",
+    "category-name": "Nombre de la Categoría",
+    "create-category": "Crear Categoría",
+    "delete-category": "Eliminar Categoría",
+    "edit-category": "Editar Categoría",
+    "manage-categories": "Gestión de Categorías",
+    "no-categories-found": "No se encontraron categorías",
+    "category-created": "Categoría creada correctamente",
+    "category-updated": "Categoría actualizada correctamente",
+    "category-deleted": "Categoría eliminada correctamente",
+    "sure-delete-category": "¿Está seguro de que desea eliminar esta categoría?",
+    "search-categories": "Buscar categorías..."
+  },
   "General": {
     "actions": "Acciones",
     "add": "Agregar",
@@ -101,10 +115,12 @@
     "basic-information": "Información Básica",
     "cancel": "Cancelar",
     "category": "Categoría",
+    "categories": "Categorías",
     "city": "Ciudad",
     "color": "Color",
     "consult": "Consultar",
     "company": "Empresa",
+    "companies": "Empresas",
     "confirmation": "Confirmación",
     "country": "País",
     "customer": "Cliente",
@@ -174,5 +190,20 @@
     "overdue": "Vencido",
     "paid": "Pagado",
     "pending": "Pendiente"
+  },
+  "Companies": {
+    "companies": "Empresas",
+    "add-company": "Agregar Empresa",
+    "add-new-company": "Agregar Nueva Empresa",
+    "all-company": "Todas las Empresas",
+    "company-created": "Empresa creada correctamente",
+    "company-deleted": "Empresa eliminada correctamente",
+    "company-updated": "Empresa actualizada correctamente",
+    "delete-company": "Eliminar Empresa",
+    "edit-company": "Editar Empresa",
+    "company-not-found": "Empresa no encontrada",
+    "search-companies": "Buscar empresas...",
+    "sure-delete-company": "¿Estás seguro que deseas eliminar esta empresa?",
+    "update-company": "Actualizar Empresa"
   }
 }

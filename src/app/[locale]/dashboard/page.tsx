@@ -5,9 +5,9 @@ import { Alert, Backdrop, Box, CircularProgress, Container, Grid, Paper, Snackba
 import { Customer } from "../../types/customer"
 import { Invoice } from "../../types/invoice"
 import InvoiceForm from "../../components/invoices/invoice-form"
-import RecentPayments from "../../components/recent-payments"
+import RecentPayments from "../../components/dashboard/recent-payments"
 import InvoiceList from "../../components/invoices/invoice-list"
-import BillingStats from "../../components/billing-stats"
+import BillingStats from "../../components/dashboard/billing-stats"
 import { useTranslations } from "next-intl"
 
 export default function Dashboard() {

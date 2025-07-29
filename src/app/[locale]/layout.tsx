@@ -13,10 +13,10 @@ import { notFound } from "next/navigation";
 import { getMessages } from "next-intl/server";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 
-import CustomAppBar from "../components/CustomAppBar";
+import CustomAppBar from "../components/shared/CustomAppBar";
 import { routing } from "@/i18n/routing";
-import SessionWrapper from "../components/session-wrapper";
-import SidebarMenu from "../components/sideBarMenu";
+import SessionWrapper from "../components/shared/session-wrapper";
+import SidebarMenu from "../components/shared/sideBarMenu";
 
 const inter = Inter({ subsets: ["latin"] });
 const drawerWidth = 240;

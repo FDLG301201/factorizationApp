@@ -9,7 +9,7 @@ import { Customer } from "@/app/types/customer"
 import { Invoice } from "@/app/types/invoice"
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
-import PaymentModal from "@/app/components/payment-modal"
+import PaymentModal from "@/app/components/invoices/payment-modal"
 
 export default function InvoicesPage() {
 

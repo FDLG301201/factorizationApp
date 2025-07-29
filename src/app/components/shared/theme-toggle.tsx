@@ -2,7 +2,7 @@
 
 import { IconButton, Tooltip } from "@mui/material"
 import { Brightness4 as DarkIcon, Brightness7 as LightIcon } from "@mui/icons-material"
-import { useTheme } from "../contexts/theme-context"
+import { useTheme } from "../../contexts/theme-context"
 
 
 export default function ThemeToggle() {
