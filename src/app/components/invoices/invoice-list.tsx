@@ -27,6 +27,7 @@ import { useEffect, useState } from "react"
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PriceCheckIcon from '@mui/icons-material/PriceCheck';
+import CheckIcon from '@mui/icons-material/Check';
 import { InvoiceStatus } from "@/app/constants/invoice-statuses.enum"
 
 interface InvoiceListProps {
@@ -36,12 +37,14 @@ interface InvoiceListProps {
   onDeleteClick: (id: string) => void
   onPayClick: (invoice: Invoice) => void
   onConsultClick: (invoice: Invoice) => void
+  onRehabilitationClick?: (id: string) => void
   showActions?: boolean
   showCreateButton?: boolean
   showPagination?: boolean
+  showRehabilitationButton?: boolean
 }
 
-export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick, onPayClick, onConsultClick, showActions = true, showCreateButton = true, showPagination = true }: InvoiceListProps) {
+export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDeleteClick, onPayClick, onConsultClick, showActions = true, showCreateButton = true, showPagination = true, showRehabilitationButton = false, onRehabilitationClick}: InvoiceListProps) {
   const locale = useLocale();
   const t = useTranslations("Invoices");
   const g = useTranslations("General");
@@ -122,7 +125,7 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
   const filteredInvoices = invoices.filter(
     (invoice) =>
       invoice.customers?.identifier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s(invoice.invoice_statuses?.name || "")?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (invoice.invoice_statuses?.name || "")?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.customers?.identifier?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       invoice.id?.toString().toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -206,7 +209,7 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
                   </TableCell>
                 )} */}
 
-                {showActions && (
+                {showActions && !showRehabilitationButton && (
                   <TableCell align="right">
                     <IconButton
                       aria-label="more"
@@ -276,6 +279,14 @@ export default function InvoiceList({ invoices, onCreateClick, onEditClick, onDe
                       )}
                     </Menu>
                   </TableCell>
+                )}
+
+                {showActions && showRehabilitationButton && onRehabilitationClick && (
+                    <TableCell align="right" sx={{ pr:4 }}>
+                      <IconButton size="small" onClick={() => onRehabilitationClick(invoice.id)}>
+                        <CheckIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
                 )}
               </TableRow>
             ))}
