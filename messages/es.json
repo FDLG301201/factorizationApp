@@ -158,6 +158,7 @@
     "products": "Productos",
     "provider": "Proveedor",
     "quantity": "Cantidad",
+    "reports": "Informes",
     "rows-per-page": "Filas por página",
     "search": "Buscar",
     "state": "Estado",
@@ -187,6 +188,86 @@
     "payment-created": "Abono creado correctamente",
     "payment-successful": "Pago registrado correctamente",
     "total-paid": "Total Pagado"
+  },
+  "Reports": {
+    "title": "Informes de Ventas",
+    "subtitle": "Analiza el rendimiento de ventas y genera informes detallados",
+    "error": {
+      "loadingData": "Error al cargar los datos del informe. Por favor, inténtalo de nuevo."
+    },
+    "export": {
+      "export": "Exportar",
+      "pdf": "PDF",
+      "excel": "Excel",
+      "csv": "CSV"
+    },
+    "filters": {
+      "title": "Filtros de Período",
+      "period": "Período",
+      "today": "Hoy",
+      "week": "Esta semana",
+      "month": "Este mes",
+      "year": "Este año",
+      "custom": "Personalizado",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "date": "Fecha",
+      "weekReference": "Semana de referencia",
+      "monthReference": "Mes de referencia",
+      "yearReference": "Año de referencia",
+      "to": "hasta",
+      "selectedPeriod": "Período seleccionado",
+      "selectDate": "Selecciona una fecha específica",
+      "selectWeek": "Selecciona una fecha para ver la semana completa",
+      "selectMonth": "Selecciona un mes específico",
+      "selectYear": "Selecciona un año específico",
+      "selectCustomRange": "Selecciona un rango de fechas personalizado",
+      "descriptions": {
+        "today": "Hoy",
+        "currentWeek": "Semana actual",
+        "currentMonth": "Mes actual",
+        "currentYear": "Año actual"
+      }
+    },
+    "actions": {
+      "quickActions": "Acciones Rápidas",
+      "exportDescription": "Exporta tus reportes en diferentes formatos"
+    },
+    "stats": {
+      "totalSales": "Ventas Totales",
+      "totalInvoices": "Facturas Totales",
+      "avgInvoiceValue": "Valor Promedio",
+      "growth": "Crecimiento",
+      "invoicesCount": "Conteo de Facturas",
+      "averageDaily": "Promedio Diario",
+      "salesGrowth": "Ventas de crecimiento",
+      "invoicesGrowth": "Facturas de crecimiento",
+      "averageGrowth": "Promedio de crecimiento",
+      "dailySales": "Ventas Diarias",
+      "salesByCategory": "Sales By Category",
+      "invoices": "Invoices",
+      "comparedToPrevious": "Compared to previous",
+      "comparedToPreviousPeriod": "Compared to previous period"
+    },
+    "invoices": {
+      "title": "Facturas Recientes",
+      "number": "Número",
+      "date": "Fecha",
+      "customer": "Cliente",
+      "amount": "Monto",
+      "status": "Estado",
+      "noInvoices": "No hay facturas en este período",
+      "search": "Buscar",
+      "actions": "Acciones"
+    },
+    "charts": {
+      "title": "Gráficos",
+      "dailySales": "Ventas Diarias",
+      "salesByCategory": "Ventas por Categoría",
+      "linechart":"Gráfico de lineas",
+      "barchart":"Gráfico de barras",
+      "piechart":"Gráfico de torta"
+    }
   },
   "Status": {
     "active": "Activo",

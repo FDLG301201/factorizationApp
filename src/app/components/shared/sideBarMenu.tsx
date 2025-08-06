@@ -10,6 +10,7 @@ import {
   Business as BusinessIcon,
   Category as CategoryIcon,
   Block as BlockIcon,
+  Assessment as AssessmentIcon,
 } from "@mui/icons-material";
 import Link from "next/link";
 
@@ -64,6 +65,12 @@ export default function SidebarMenu({ locale }: { locale: string }) {
         <ListItemButton component={Link} href={`/${locale}/canceled-invoices`}>
           <ListItemIcon><BlockIcon /></ListItemIcon>
           <ListItemText primary={t("canceled-invoices")} />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
+        <ListItemButton component={Link} href={`/${locale}/reports`}>
+          <ListItemIcon><AssessmentIcon /></ListItemIcon>
+          <ListItemText primary={t("reports")} />
         </ListItemButton>
       </ListItem>
     </List>

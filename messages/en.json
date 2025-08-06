@@ -109,6 +109,82 @@
     "sure-delete-category": "Are you sure you want to delete this category?",
     "search-categories": "Search categories..."
   },
+  "Reports": {
+    "title": "Sales Reports",
+    "subtitle": "Analyze your sales performance and generate detailed reports",
+    "error": {
+      "loadingData": "Error loading report data. Please try again."
+    },
+    "export": {
+      "export": "Export",
+      "pdf": "PDF",
+      "excel": "Excel",
+      "csv": "CSV"
+    },
+    "filters": {
+      "period": "Period",
+      "today": "Today",
+      "week": "This week",
+      "month": "This month",
+      "year": "This year",
+      "custom": "Custom",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "date": "Date",
+      "weekReference": "Reference week",
+      "monthReference": "Reference month",
+      "yearReference": "Reference year",
+      "to": "to",
+      "selectedPeriod": "Selected period",
+      "selectDate": "Select a specific date",
+      "selectWeek": "Select a date to view the full week",
+      "selectMonth": "Select a specific month",
+      "selectYear": "Select a specific year",
+      "selectCustomRange": "Select a custom date range",
+      "descriptions": {
+        "today": "Today",
+        "currentWeek": "Current week",
+        "currentMonth": "Current month",
+        "currentYear": "Current year"
+      }
+    },
+    "actions": {
+      "quickActions": "Quick Actions",
+      "exportDescription": "Export your reports in different formats"
+    },
+    "stats": {
+      "totalSales": "Total Sales",
+      "invoicesCount": "Invoices Count",
+      "averageDaily": "Average Daily",
+      "salesGrowth": "Sales Growth",
+      "invoicesGrowth": "Invoices Growth",
+      "averageGrowth": "Average Growth",
+      "dailySales": "Daily Sales",
+      "salesByCategory": "Sales By Category",
+      "invoices": "Invoices",
+      "comparedToPrevious": "Compared to previous",
+      "comparedToPreviousPeriod": "Compared to previous period"
+    },
+    "charts": {
+      "title": "Charts",
+      "dailySales": "Daily Sales",
+      "salesByCategory": "Sales By Category",
+      "linechart":"Line Chart",
+      "barchart":"Bar Chart",
+      "piechart":"Pie Chart"
+    },
+    "invoices": {
+      "title": "Recent Invoices",
+      "number": "Number",
+      "date": "Date",
+      "customer": "Customer",
+      "amount": "Amount",
+      "status": "Status",
+      "noInvoices": "No invoices in this period",
+      "search": "Search",
+      "actions": "Actions"
+    }
+  },
   "General": {
     "actions": "Actions",
     "add": "Add",
@@ -158,6 +234,7 @@
     "products": "Products",
     "provider": "Provider",
     "quantity": "Quantity",
+    "reports": "Reports",
     "rows-per-page": "Rows per page",
     "search": "Search",
     "state": "State",
