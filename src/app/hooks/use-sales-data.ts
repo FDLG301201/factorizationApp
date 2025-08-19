@@ -20,28 +20,68 @@ export function useSalesData(dateRange: DateRange): UseSalesDataReturn {
         setError(null)
 
         try {
-            const requestData = {
-                ...dateRange,
-                startDate: dateRange.startDate.toISOString(),
-                endDate: dateRange.endDate.toISOString(),
+            console.log('useSalesData: Fetching with dateRange:', dateRange);
+
+            // When filtering by a single exact day, call the dedicated daily endpoint
+            const isDaily = dateRange.period === 'today'
+            let response: Response
+            if (isDaily) {
+                // Send only the date part in YYYY-MM-DD to avoid timezone shifts
+                const dateOnly = dateRange.startDate.toISOString().slice(0, 10)
+                const dailyBody = { date: dateOnly }
+                console.log('useSalesData: Daily request body:', dailyBody)
+                response = await fetch("/api/reports/sales/daily", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dailyBody),
+                })
+            } else {
+                const requestData = {
+                    ...dateRange,
+                    startDate: dateRange.startDate.toISOString(),
+                    endDate: dateRange.endDate.toISOString(),
+                }
+                console.log('useSalesData: Range request data:', requestData)
+                response = await fetch("/api/reports/sales", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(requestData),
+                })
             }
 
-            const response = await fetch("/api/reports/sales", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(requestData), // ← CAMBIAR de dateRange a requestData
-            })
+            console.log('useSalesData: Response status:', response.status);
 
             if (!response.ok) {
-                throw new Error("Failed to fetch sales data")
+                const errorData = await response.json().catch(() => ({}));
+                console.error('useSalesData: API error:', errorData);
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
             }
 
             const salesData = await response.json()
-            setData(salesData)
+            console.log('useSalesData: Received data:', salesData);
+
+            // Validar los datos recibidos
+            const validatedData: SalesData = {
+                totalSales: Number(salesData.totalSales) || 0,
+                invoicesCount: Number(salesData.invoicesCount) || 0,
+                averageDaily: Number(salesData.averageDaily) || 0,
+                salesGrowth: typeof salesData.salesGrowth === 'number' ? salesData.salesGrowth : 0,
+                invoicesGrowth: typeof salesData.invoicesGrowth === 'number' ? salesData.invoicesGrowth : 0,
+                averageGrowth: typeof salesData.averageGrowth === 'number' ? salesData.averageGrowth : 0,
+                dailySales: Array.isArray(salesData.dailySales) ? salesData.dailySales : [],
+                salesByCategory: Array.isArray(salesData.salesByCategory) ? salesData.salesByCategory : [],
+                invoices: Array.isArray(salesData.invoices) ? salesData.invoices : [],
+            }
+
+            console.log('useSalesData: Validated data:', validatedData);
+            setData(validatedData)
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Unknown error")
+            console.error('useSalesData: Error:', err)
+            const errorMessage = err instanceof Error ? err.message : "Error desconocido al cargar los datos"
+            setError(errorMessage)
+            setData(null)
         } finally {
             setLoading(false)
         }

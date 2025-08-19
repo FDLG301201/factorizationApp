@@ -16,6 +16,70 @@
     "sure-delete-customer": "Are you sure you want to delete the customer?",
     "update-customer": "Update Customer"
   },
+  "Quotes": {
+    "title": "Quote Generator",
+    "subtitle": "Create professional quotes without affecting inventory",
+    "form": {
+      "quoteNumber": "Quote Number",
+      "customer": "Customer",
+      "selectCustomer": "Select customer",
+      "validUntil": "Valid until",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional terms and conditions...",
+      "addItem": "Add Product",
+      "product": "Product",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "subtotal": "Subtotal",
+      "actions": "Actions"
+    },
+    "summary": {
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "preview": {
+      "title": "Preview",
+      "customer": "Customer",
+      "date": "Date",
+      "validUntil": "Valid until",
+      "items": "Items",
+      "notes": "Notes"
+    },
+    "download": {
+      "title": "Download Quote",
+      "selectFormat": "Select download format",
+      "pdf": "Download PDF",
+      "excel": "Download Excel",
+      "word": "Download Word",
+      "csv": "Download CSV",
+      "generating": "Generating file...",
+      "downloadReady": "Download ready!"
+    },
+    "validation": {
+      "customerRequired": "Must select a customer",
+      "itemsRequired": "Must add at least one product",
+      "validDateRequired": "Expiration date must be in the future",
+      "quantityPositive": "Quantity must be greater than 0",
+      "pricePositive": "Price must be greater than 0"
+    },
+    "messages": {
+      "success": "Quote generated successfully",
+      "error": "Error generating quote",
+      "itemAdded": "Product added to quote",
+      "itemRemoved": "Product removed from quote"
+    },
+    "buttons": {
+      "generate": "Generate Quote",
+      "preview": "Preview",
+      "addProduct": "Add Product",
+      "removeItem": "Remove",
+      "clearAll": "Clear All",
+      "back": "Back",
+      "download": "Download"
+    }
+  },
   "HomePage": {
     "billing-dashboard": "Billing Dashboard",
     "due-date": "Due Date",
@@ -235,6 +299,7 @@
     "provider": "Provider",
     "quantity": "Quantity",
     "reports": "Reports",
+    "quotes": "Quotes",
     "rows-per-page": "Rows per page",
     "search": "Search",
     "state": "State",

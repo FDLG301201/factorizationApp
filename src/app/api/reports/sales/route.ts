@@ -2,18 +2,26 @@ import { type NextRequest, NextResponse } from "next/server"
 import type { DateRange, SalesData } from "@/app/types/reports"
 import { prisma } from '../../../../../lib/prisma';
 
-
 export async function POST(request: NextRequest) {
     try {
-
         const dateRange: DateRange = await request.json()
-
-        const { startDate, endDate } = dateRange
+        const { startDate, endDate, period } = dateRange
         
-        // Ajustar fechas para incluir todo el día de endDate
+        // Crear fechas ajustadas correctamente
         const adjustedStartDate = new Date(startDate);
+        adjustedStartDate.setHours(0, 0, 0, 0); // Inicio del día
+        
         const adjustedEndDate = new Date(endDate);
-        adjustedEndDate.setHours(23, 59, 59, 999);
+        // Para período "today", usar el mismo día hasta las 23:59:59
+        if (period === "today") {
+            adjustedEndDate.setHours(23, 59, 59, 999);
+        } else {
+            // Para otros períodos, usar el final del día seleccionado
+            adjustedEndDate.setHours(23, 59, 59, 999);
+        }
+
+        console.log('Filtering from:', adjustedStartDate, 'to:', adjustedEndDate);
+        console.log('Period:', period);
 
         // Obtener ventas del período actual
         const currentPeriodInvoices = await prisma.invoices.findMany({
@@ -31,12 +39,14 @@ export async function POST(request: NextRequest) {
             },
         })
 
-        console.log('currentPeriodInvoices',currentPeriodInvoices);
+        console.log('Found invoices:', currentPeriodInvoices.length);
+        console.log('Invoice dates:', currentPeriodInvoices.map(inv => inv.date));
 
         // Calcular período anterior para comparación
         const periodDiff = adjustedEndDate.getTime() - adjustedStartDate.getTime();
-        const previousStartDate = new Date(adjustedStartDate.getTime() - periodDiff - 1);
-        const previousEndDate = new Date(adjustedStartDate.getTime() - 1);
+        const previousStartDate = new Date(adjustedStartDate.getTime() - periodDiff - 24 * 60 * 60 * 1000); // Restar un día adicional
+        const previousEndDate = new Date(adjustedStartDate.getTime() - 24 * 60 * 60 * 1000); // Un día antes del inicio actual
+        previousEndDate.setHours(23, 59, 59, 999);
 
         const previousPeriodInvoices = await prisma.invoices.findMany({
             where: {
@@ -50,23 +60,43 @@ export async function POST(request: NextRequest) {
             },
         })
 
+        console.log('Previous period invoices:', previousPeriodInvoices.length);
+
         // Calcular métricas actuales
-        const totalSales = currentPeriodInvoices.reduce((sum: number, invoice: any) => sum + invoice.amount, 0)
+        const totalSales = currentPeriodInvoices.reduce((sum: number, invoice: any) => {
+            const amount = Number(invoice.amount) || 0;
+            return sum + amount;
+        }, 0);
+
         const invoicesCount = currentPeriodInvoices.length
-        const daysDiff = Math.ceil((adjustedEndDate.getTime() - adjustedStartDate.getTime()) / (1000 * 60 * 60 * 24)) || 1
+        
+        // Calcular días correctamente
+        const daysDiff = Math.max(1, Math.ceil((adjustedEndDate.getTime() - adjustedStartDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
         const averageDaily = totalSales / daysDiff
 
         // Calcular métricas del período anterior
-        const previousTotalSales = previousPeriodInvoices.reduce((sum: number, invoice: any) => sum + invoice.amount, 0)
+        const previousTotalSales = previousPeriodInvoices.reduce((sum: number, invoice: any) => {
+            const amount = Number(invoice.amount) || 0;
+            return sum + amount;
+        }, 0);
+
         const previousInvoicesCount = previousPeriodInvoices.length
-        const previousAverageDaily = previousTotalSales / daysDiff
+        const previousDaysDiff = Math.max(1, Math.ceil((previousEndDate.getTime() - previousStartDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+        const previousAverageDaily = previousTotalSales / previousDaysDiff
 
         // Calcular crecimiento
-        const salesGrowth = previousTotalSales > 0 ? ((totalSales - previousTotalSales) / previousTotalSales) * 100 : 0
-        const invoicesGrowth =
-            previousInvoicesCount > 0 ? ((invoicesCount - previousInvoicesCount) / previousInvoicesCount) * 100 : 0
-        const averageGrowth =
-            previousAverageDaily > 0 ? ((averageDaily - previousAverageDaily) / previousAverageDaily) * 100 : 0
+        const salesGrowth = previousTotalSales > 0 ? ((totalSales - previousTotalSales) / previousTotalSales) * 100 : (totalSales > 0 ? 100 : 0)
+        const invoicesGrowth = previousInvoicesCount > 0 ? ((invoicesCount - previousInvoicesCount) / previousInvoicesCount) * 100 : (invoicesCount > 0 ? 100 : 0)
+        const averageGrowth = previousAverageDaily > 0 ? ((averageDaily - previousAverageDaily) / previousAverageDaily) * 100 : (averageDaily > 0 ? 100 : 0)
+
+        console.log('Calculated metrics:', {
+            totalSales,
+            invoicesCount,
+            averageDaily,
+            salesGrowth,
+            invoicesGrowth,
+            averageGrowth
+        });
 
         // Agrupar ventas por día
         const dailySalesMap = new Map<string, { sales: number; invoices: number }>()
@@ -74,8 +104,9 @@ export async function POST(request: NextRequest) {
         currentPeriodInvoices.forEach((invoice: any) => {
             const dateKey = invoice.date.toISOString().split("T")[0]
             const existing = dailySalesMap.get(dateKey) || { sales: 0, invoices: 0 }
+            const amount = Number(invoice.amount) || 0;
             dailySalesMap.set(dateKey, {
-                sales: existing.sales + invoice.amount,
+                sales: existing.sales + amount,
                 invoices: existing.invoices + 1,
             })
         })
@@ -88,7 +119,9 @@ export async function POST(request: NextRequest) {
             }))
             .sort((a, b) => a.date.localeCompare(b.date))
 
-        // Ventas por categoría (ejemplo - ajustar según tu modelo de datos)
+        console.log('Daily sales:', dailySales);
+
+        // Ventas por categoría
         const items = await prisma.invoice_items.findMany({
             where: {
                 invoices: {
@@ -99,47 +132,46 @@ export async function POST(request: NextRequest) {
                 },
             },
             include: {
-                products: true, // incluimos los productos para tener el category_id
+                products: {
+                    include: {
+                        categories: true,
+                    }
+                },
             },
         });
 
         // Agrupamos por category_id
         const salesByCategory = items.reduce((acc, item) => {
-            const catId = item.products?.category_id ?? 'unknown';
-            if (!acc[catId]) {
-                acc[catId] = {
-                    category_id: catId,
+            const categoryId = item.products?.category_id ?? 'unknown';
+            const categoryName = item.products?.categories?.name ?? 'Sin categoría';
+            
+            if (!acc[categoryId]) {
+                acc[categoryId] = {
+                    category_id: categoryId,
+                    category_name: categoryName,
                     subtotal_sum: 0,
                     item_count: 0,
                 };
             }
-            acc[catId].subtotal_sum += Number(item.subtotal);
-            acc[catId].item_count += 1;
+            acc[categoryId].subtotal_sum += Number(item.subtotal) || 0;
+            acc[categoryId].item_count += 1;
             return acc;
-        }, {} as Record<string, { category_id: number | string; subtotal_sum: number; item_count: number }>);
+        }, {} as Record<string, { category_id: number | string; category_name: string; subtotal_sum: number; item_count: number }>);
 
-        const salesByCategoryArray = Object.values(salesByCategory);
+        const categoriesData = Object.values(salesByCategory).map(item => ({
+            name: item.category_name,
+            value: item.subtotal_sum,
+        }));
 
-        const categoriesData = await Promise.all(
-            salesByCategoryArray.map(async (item: any) => {
-                const category = await prisma.categories.findUnique({
-                    where: { id: typeof item.category_id === 'string' ? parseInt(item.category_id) : item.category_id },
-                });
-                return {
-                    name: category?.name || "Sin categoría",
-                    value: item.subtotal_sum || 0,
-                };
-            })
-        );
-
+        console.log('Categories data:', categoriesData);
 
         // Formatear facturas para la respuesta
         const invoices = currentPeriodInvoices.map((invoice: any) => ({
             id: invoice.id,
             number: invoice.number,
             date: invoice.date.toISOString(),
-            customerName: invoice.customers?.name,
-            amount: invoice.amount,
+            customerName: invoice.customers?.name || 'Cliente no especificado',
+            amount: Number(invoice.amount) || 0,
             status: invoice.status,
         }))
 
@@ -155,10 +187,15 @@ export async function POST(request: NextRequest) {
             invoices,
         }
 
+        console.log('Final sales data:', salesData);
+
         return NextResponse.json(salesData)
 
     } catch (error) {
         console.error("Error fetching sales data:", error)
-        return NextResponse.json({ error: "Failed to fetch sales data" }, { status: 500 })
+        return NextResponse.json({ 
+            error: "Failed to fetch sales data", 
+            details: error instanceof Error ? error.message : 'Unknown error' 
+        }, { status: 500 })
     }
 }

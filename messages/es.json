@@ -16,6 +16,70 @@
     "sure-delete-customer": "Estas seguro que deseas eliminar el cliente?",
     "update-customer": "Actualizar Cliente"
   },
+  "Quotes": {
+    "title": "Generador de Cotizaciones",
+    "subtitle": "Crea cotizaciones profesionales sin afectar el inventario",
+    "form": {
+      "quoteNumber": "Número de Cotización",
+      "customer": "Cliente",
+      "selectCustomer": "Seleccionar cliente",
+      "validUntil": "Válida hasta",
+      "notes": "Observaciones",
+      "notesPlaceholder": "Términos y condiciones adicionales...",
+      "addItem": "Agregar Producto",
+      "product": "Producto",
+      "quantity": "Cantidad",
+      "unitPrice": "Precio Unitario",
+      "subtotal": "Subtotal",
+      "actions": "Acciones"
+    },
+    "summary": {
+      "subtotal": "Subtotal",
+      "tax": "Impuestos",
+      "discount": "Descuento",
+      "total": "Total"
+    },
+    "preview": {
+      "title": "Vista Previa",
+      "customer": "Cliente",
+      "date": "Fecha",
+      "validUntil": "Válida hasta",
+      "items": "Artículos",
+      "notes": "Observaciones"
+    },
+    "download": {
+      "title": "Descargar Cotización",
+      "selectFormat": "Selecciona el formato de descarga",
+      "pdf": "Descargar PDF",
+      "excel": "Descargar Excel",
+      "word": "Descargar Word",
+      "csv": "Descargar CSV",
+      "generating": "Generando archivo...",
+      "downloadReady": "¡Descarga lista!"
+    },
+    "validation": {
+      "customerRequired": "Debe seleccionar un cliente",
+      "itemsRequired": "Debe agregar al menos un producto",
+      "validDateRequired": "La fecha de vencimiento debe ser futura",
+      "quantityPositive": "La cantidad debe ser mayor a 0",
+      "pricePositive": "El precio debe ser mayor a 0"
+    },
+    "messages": {
+      "success": "Cotización generada exitosamente",
+      "error": "Error al generar la cotización",
+      "itemAdded": "Producto agregado a la cotización",
+      "itemRemoved": "Producto eliminado de la cotización"
+    },
+    "buttons": {
+      "generate": "Generar Cotización",
+      "preview": "Vista Previa",
+      "addProduct": "Agregar Producto",
+      "removeItem": "Eliminar",
+      "clearAll": "Limpiar Todo",
+      "back": "Volver",
+      "download": "Descargar"
+    }
+  },
   "HomePage": {
     "billing-dashboard": "Panel de Facturación",
     "due-date": "Fecha de Vencimiento",
@@ -159,6 +223,7 @@
     "provider": "Proveedor",
     "quantity": "Cantidad",
     "reports": "Informes",
+    "quotes": "Cotizaciones",
     "rows-per-page": "Filas por página",
     "search": "Buscar",
     "state": "Estado",
