@@ -385,15 +385,14 @@ async function generateQuoteFile(
 
 export async function POST(
   request: NextRequest,
-  context: { params: { format: string } }
+  {params}: { params: Promise<{ format: string }> }
 ) {
   const startTime = Date.now()
   let format: string = 'unknown'
-  
+
   try {
     // 1. Validar formato
-    const { format: requestedFormat } = context.params
-    format = requestedFormat
+    const format = (await params).format;
 
     if (!isValidFormat(format)) {
       return NextResponse.json(
