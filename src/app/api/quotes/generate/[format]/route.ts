@@ -12,7 +12,7 @@ export const runtime = 'nodejs'
 
 // ================== TIPOS Y CONFIGURACIÓN ==================
 
-type SupportedFormat = 'csv' | 'pdf' | 'excel' | 'xlsx' | 'word' | 'docx'
+type SupportedFormat = 'csv' | 'pdf' | 'xlsx' | 'docx'
 
 interface FormatConfig {
   mimeType: string
@@ -40,7 +40,7 @@ const FORMAT_CONFIG: Record<SupportedFormat, FormatConfig> = {
     mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     extension: '.docx',
     generator: async (data, customer, products) => await generateQuoteWord(data, customer, products)
-  },
+  }
 }
 
 // ================== VALIDACIÓN SCHEMA ==================
