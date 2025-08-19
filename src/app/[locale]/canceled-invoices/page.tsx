@@ -49,7 +49,6 @@ export default function CanceledInvoicesPage() {
 
     const handleInvoiceRehabilitation = async (id: string) => {
         try {
-            console.log('FACTURA A REHABILITAR', id)
             setLoading(true);
             const response = await fetch('/api/invoices/canceled', {
                 method: 'POST',

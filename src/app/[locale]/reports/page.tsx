@@ -25,10 +25,6 @@ export default function ReportsPage() {
         refetch()
     }, [dateRange, refetch])
 
-    useEffect(() => {
-        console.log("dateRange", dateRange)
-    }, [dateRange])
-
     if (loading) {
         return (
             <Container maxWidth="xl" sx={{ py: 4 }}>

@@ -106,8 +106,6 @@ export async function POST(request: NextRequest) {
       name: entry.category_name,
       value: entry.subtotal_sum,
     }));
-
-    console.log('LLEGARON LO MONTRO MEN', currentDayInvoices);
     
     // Format invoices for response
     const invoices = currentDayInvoices.map((invoice: any) => ({

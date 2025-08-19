@@ -20,8 +20,6 @@ export function useSalesData(dateRange: DateRange): UseSalesDataReturn {
         setError(null)
 
         try {
-            console.log('useSalesData: Fetching with dateRange:', dateRange);
-
             // When filtering by a single exact day, call the dedicated daily endpoint
             const isDaily = dateRange.period === 'today'
             let response: Response
@@ -29,7 +27,6 @@ export function useSalesData(dateRange: DateRange): UseSalesDataReturn {
                 // Send only the date part in YYYY-MM-DD to avoid timezone shifts
                 const dateOnly = dateRange.startDate.toISOString().slice(0, 10)
                 const dailyBody = { date: dateOnly }
-                console.log('useSalesData: Daily request body:', dailyBody)
                 response = await fetch("/api/reports/sales/daily", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -41,7 +38,6 @@ export function useSalesData(dateRange: DateRange): UseSalesDataReturn {
                     startDate: dateRange.startDate.toISOString(),
                     endDate: dateRange.endDate.toISOString(),
                 }
-                console.log('useSalesData: Range request data:', requestData)
                 response = await fetch("/api/reports/sales", {
                     method: "POST",
                     headers: {
@@ -51,16 +47,12 @@ export function useSalesData(dateRange: DateRange): UseSalesDataReturn {
                 })
             }
 
-            console.log('useSalesData: Response status:', response.status);
-
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                console.error('useSalesData: API error:', errorData);
                 throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
             }
 
             const salesData = await response.json()
-            console.log('useSalesData: Received data:', salesData);
 
             // Validar los datos recibidos
             const validatedData: SalesData = {
@@ -75,7 +67,6 @@ export function useSalesData(dateRange: DateRange): UseSalesDataReturn {
                 invoices: Array.isArray(salesData.invoices) ? salesData.invoices : [],
             }
 
-            console.log('useSalesData: Validated data:', validatedData);
             setData(validatedData)
         } catch (err) {
             console.error('useSalesData: Error:', err)

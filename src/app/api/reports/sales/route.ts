@@ -20,9 +20,6 @@ export async function POST(request: NextRequest) {
             adjustedEndDate.setHours(23, 59, 59, 999);
         }
 
-        console.log('Filtering from:', adjustedStartDate, 'to:', adjustedEndDate);
-        console.log('Period:', period);
-
         // Obtener ventas del período actual
         const currentPeriodInvoices = await prisma.invoices.findMany({
             where: {
@@ -38,9 +35,6 @@ export async function POST(request: NextRequest) {
                 date: "desc",
             },
         })
-
-        console.log('Found invoices:', currentPeriodInvoices.length);
-        console.log('Invoice dates:', currentPeriodInvoices.map(inv => inv.date));
 
         // Calcular período anterior para comparación
         const periodDiff = adjustedEndDate.getTime() - adjustedStartDate.getTime();
@@ -59,8 +53,6 @@ export async function POST(request: NextRequest) {
                 customers: true,
             },
         })
-
-        console.log('Previous period invoices:', previousPeriodInvoices.length);
 
         // Calcular métricas actuales
         const totalSales = currentPeriodInvoices.reduce((sum: number, invoice: any) => {
@@ -89,15 +81,6 @@ export async function POST(request: NextRequest) {
         const invoicesGrowth = previousInvoicesCount > 0 ? ((invoicesCount - previousInvoicesCount) / previousInvoicesCount) * 100 : (invoicesCount > 0 ? 100 : 0)
         const averageGrowth = previousAverageDaily > 0 ? ((averageDaily - previousAverageDaily) / previousAverageDaily) * 100 : (averageDaily > 0 ? 100 : 0)
 
-        console.log('Calculated metrics:', {
-            totalSales,
-            invoicesCount,
-            averageDaily,
-            salesGrowth,
-            invoicesGrowth,
-            averageGrowth
-        });
-
         // Agrupar ventas por día
         const dailySalesMap = new Map<string, { sales: number; invoices: number }>()
 
@@ -118,8 +101,6 @@ export async function POST(request: NextRequest) {
                 invoices: data.invoices,
             }))
             .sort((a, b) => a.date.localeCompare(b.date))
-
-        console.log('Daily sales:', dailySales);
 
         // Ventas por categoría
         const items = await prisma.invoice_items.findMany({
@@ -163,8 +144,6 @@ export async function POST(request: NextRequest) {
             value: item.subtotal_sum,
         }));
 
-        console.log('Categories data:', categoriesData);
-
         // Formatear facturas para la respuesta
         const invoices = currentPeriodInvoices.map((invoice: any) => ({
             id: invoice.id,
@@ -186,8 +165,6 @@ export async function POST(request: NextRequest) {
             salesByCategory: categoriesData,
             invoices,
         }
-
-        console.log('Final sales data:', salesData);
 
         return NextResponse.json(salesData)
 

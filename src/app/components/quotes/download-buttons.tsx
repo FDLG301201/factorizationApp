@@ -15,17 +15,22 @@ interface Props {
 export default function DownloadButtons({ quote }: Props) {
   const t = useTranslations('Quotes')
   const triggerDownload = async (format: string) => {
-    const res = await fetch(`/api/quotes/generate/${format}`, {
+    // Map UI formats to endpoint format and file extension
+    const endpointFormat = format === 'excel' ? 'xlsx' : format === 'word' ? 'docx' : format
+    const fileExt = format === 'excel' ? 'xlsx' : format === 'word' ? 'docx' : format
+
+    const res = await fetch(`/api/quotes/generate/${endpointFormat}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(quote)
     })
     if (!res.ok) return
+
     const blob = await res.blob()
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${quote.quote_number}.${format}`
+    a.download = `${quote.quote_number}.${fileExt}`
     a.click()
     window.URL.revokeObjectURL(url)
   }

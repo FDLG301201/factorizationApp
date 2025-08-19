@@ -59,8 +59,6 @@ export function SalesStats({ data, dateRange }: SalesStatsProps) {
     )
   }
 
-  console.log('SalesStats received data:', data);
-
   const stats = [
     {
       title: t("totalSales") || "Ventas Totales",

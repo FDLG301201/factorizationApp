@@ -94,7 +94,6 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
 
     // Manejar cambio de período
     const handlePeriodChange = (period: PeriodType) => {
-        console.log('Period changed to:', period);
         
         if (period === "custom") {
             const startDate = customRange[0] || new Date()
@@ -102,7 +101,6 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
             onChange({ startDate, endDate, period })
         } else {
             const { startDate, endDate } = calculateDateRange(period, selectedDate)
-            console.log('Calculated range:', { startDate, endDate, period });
             onChange({ startDate, endDate, period })
         }
     }
@@ -112,7 +110,6 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
         if (date && value.period !== "custom") {
             setSelectedDate(date)
             const { startDate, endDate } = calculateDateRange(value.period, date)
-            console.log('Reference date changed:', { date, startDate, endDate, period: value.period });
             onChange({ startDate, endDate, period: value.period })
         }
     }

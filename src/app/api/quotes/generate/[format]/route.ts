@@ -7,9 +7,12 @@ import { generateQuoteWord } from '@/app/utils/quote-generators/word'
 import { QuoteData } from '@/app/types/quote'
 import { z } from 'zod'
 
+// Ensure Node.js runtime for proper Buffer handling (docx/xlsx generators)
+export const runtime = 'nodejs'
+
 // ================== TIPOS Y CONFIGURACIÓN ==================
 
-type SupportedFormat = 'csv' | 'pdf' | 'excel' | 'word'
+type SupportedFormat = 'csv' | 'pdf' | 'excel' | 'xlsx' | 'word' | 'docx'
 
 interface FormatConfig {
   mimeType: string
@@ -28,16 +31,16 @@ const FORMAT_CONFIG: Record<SupportedFormat, FormatConfig> = {
     extension: '.pdf',
     generator: async (data, customer, products) => await generateQuotePDF(data, customer, products)
   },
-  excel: {
+  xlsx: {
     mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     extension: '.xlsx',
     generator: async (data, customer, products) => await generateQuoteExcel(data, customer, products)
   },
-  word: {
+  docx: {
     mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     extension: '.docx',
     generator: async (data, customer, products) => await generateQuoteWord(data, customer, products)
-  }
+  },
 }
 
 // ================== VALIDACIÓN SCHEMA ==================
@@ -73,6 +76,16 @@ const QuoteItemSchema = z.object({
       return num
     })
   ]).refine(val => val >= 0, 'Unit price must be non-negative').optional(),
+  
+  // item_custom_price también es soportado en los generadores
+  item_custom_price: z.union([
+    z.number(),
+    z.string().transform(val => {
+      const num = Number(val)
+      if (isNaN(num)) throw new Error('Invalid custom price format')
+      return num
+    })
+  ]).refine(val => val >= 0, 'Custom price must be non-negative').optional(),
   
   discount: z.union([
     z.number(),
@@ -145,11 +158,6 @@ const QuoteDataSchema = z.object({
     z.string().transform(val => Number(val))
   ]).refine(val => val >= 0, 'Tax amount must be non-negative').optional(),
   
-  tax: z.union([
-    z.number(),
-    z.string().transform(val => Number(val))
-  ]).refine(val => val >= 0, 'Tax must be non-negative').optional(),
-  
   total: z.union([
     z.number(),
     z.string().transform(val => Number(val))
@@ -213,22 +221,12 @@ async function validateQuoteData(data: any): Promise<QuoteData> {
 // ================== CONSULTAS OPTIMIZADAS ==================
 
 async function fetchQuoteRelatedData(quoteData: QuoteData) {
-  // Debug: Log de los items recibidos
-  console.log('Quote items received:', JSON.stringify(quoteData.items, null, 2))
-
   // Extraer IDs de productos con múltiples estrategias
   const productIds = quoteData.items
     .map(item => {
       // Prioridad: inventory_id > product_id > id
       // inventory_id ahora puede ser string o number (convertido por Zod)
       const rawId = item.inventory_id || (item as any).id?.toString()
-      
-      console.log('Processing item:', {
-        item: JSON.stringify(item),
-        rawId,
-        inventory_id: item.inventory_id,
-        id: (item as any).id
-      })
       
       return rawId
     })
@@ -238,9 +236,6 @@ async function fetchQuoteRelatedData(quoteData: QuoteData) {
       return isNaN(numId) ? null : numId
     })
     .filter((id): id is number => id !== null && id > 0)
-
-  console.log('Extracted product IDs:', productIds)
-  console.log('Product IDs count:', productIds.length)
 
   if (productIds.length === 0) {
     // Información detallada sobre por qué falló
@@ -326,8 +321,6 @@ async function fetchQuoteRelatedData(quoteData: QuoteData) {
     })
   ])
 
-  console.log('Fetched products:', products.length, 'of', productIds.length, 'requested')
-
   return { customer, products, productIds }
 }
 
@@ -362,13 +355,6 @@ function validateDataIntegrity(customer: any, products: any[], productIds: numbe
     throw new QuoteDataError('Some quote items reference non-existent products', 400)
   }
 
-  console.log('Data integrity validation passed:', {
-    customerId: customer.id,
-    customerName: customer.name,
-    customerIdentifier: customer.identifier,
-    productCount: products.length,
-    itemCount: quoteData.items.length
-  })
 }
 
 // ================== GENERADOR DE ARCHIVOS ==================
@@ -399,14 +385,14 @@ async function generateQuoteFile(
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ format: string }> }
+  context: { params: { format: string } }
 ) {
   const startTime = Date.now()
   let format: string = 'unknown'
-
+  
   try {
     // 1. Validar formato
-    const { format: requestedFormat } = await context.params
+    const { format: requestedFormat } = context.params
     format = requestedFormat
 
     if (!isValidFormat(format)) {
@@ -422,15 +408,8 @@ export async function POST(
 
     // 2. Validar y parsear datos de entrada
     const rawData = await request.json()
-    console.log('Received quote data:', JSON.stringify(rawData, null, 2))
     
     const quoteData = await validateQuoteData(rawData)
-    console.log('Validated quote data:', {
-      customer_id: quoteData.customer_id,
-      quote_number: quoteData.quote_number,
-      itemCount: quoteData.items.length,
-      sampleItem: quoteData.items[0]
-    })
 
     // 3. Obtener datos relacionados
     const { customer, products, productIds } = await fetchQuoteRelatedData(quoteData)
@@ -459,17 +438,6 @@ export async function POST(
       'X-Processing-Time': `${processingTime}ms`,
       'X-File-Format': format,
       'X-Quote-Number': quoteData.quote_number
-    })
-
-    // Log exitoso para monitoreo
-    console.log(`Quote exported successfully:`, {
-      format,
-      quoteNumber: quoteData.quote_number,
-      customerId: quoteData.customer_id,
-      itemCount: quoteData.items.length,
-      fileSize: fileBuffer.length,
-      processingTime: `${processingTime}ms`,
-      timestamp: new Date().toISOString()
     })
 
     return new Response(fileBuffer, { headers })

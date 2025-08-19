@@ -98,11 +98,9 @@ export default function QuoteForm({ customers }: QuoteFormProps) {
 
   // Función mejorada para manejar selección de cliente
   const handleCustomerSelect = (_: any, value: Customer | null) => {
-    console.log('Customer selected:', value) // Debug log
     
     if (value) {
       const customerId = Number(value.id)
-      console.log('Setting customer ID:', customerId) // Debug log
       setQuote(q => ({ ...q, customer_id: customerId }))
     } else {
       setQuote(q => ({ ...q, customer_id: 0 }))
@@ -114,11 +112,6 @@ export default function QuoteForm({ customers }: QuoteFormProps) {
     if (!quote.customer_id || quote.customer_id === 0) return null
     
     const found = customers.find(c => Number(c.id) === Number(quote.customer_id))
-    console.log('Selected customer lookup:', { 
-      searchingFor: quote.customer_id, 
-      found: found?.name,
-      totalCustomers: customers.length 
-    }) // Debug log
     
     return found || null
   }
@@ -150,7 +143,7 @@ export default function QuoteForm({ customers }: QuoteFormProps) {
   // Validación de formulario
   const isFormValid = useMemo(() => {
     return (
-      quote.customer_id > 0 &&
+      Number(quote.customer_id) > 0 &&
       quote.quote_number.trim() !== '' &&
       quote.items.length > 0 &&
       quote.items.every(item => 
